@@ -1,0 +1,90 @@
+@import 'tailwindcss';
+
+:root {
+  --background: #fafafa;
+  --foreground: #171717;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@theme {
+  --color-*: initial;
+  --text-*: initial;
+
+  --color-white: #fff;
+  --color-black: #000;
+  --color-primary: #d87d4a;
+  --color-primary-light: #fbaf85;
+  --color-neutral-dark: #101010;
+  --color-gray-100: #f1f1f1;
+  --color-gray-50: #fafafa;
+
+  --text-56: 3.5rem;
+  --text-56--line-height: 3.625rem;
+  --text-56--letter-spacing: 0.125em;
+  --text-56--font-weight: 700;
+
+  --text-40: 2.5rem;
+  --text-40--line-height: 2.75rem;
+  --text-40--letter-spacing: 0.09375em;
+  --text-40--font-weight: 700;
+
+  --text-32: 2rem;
+  --text-32--line-height: 2.25rem;
+  --text-32--letter-spacing: 0.71875em;
+  --text-32--font-weight: 700;
+
+  --text-28: 1.75rem;
+  --text-28--line-height: 2.375rem;
+  --text-28--letter-spacing: 0.125em;
+  --text-28--font-weight: 700;
+
+  --text-24: 1.5rem;
+  --text-24--line-height: 2.0625rem;
+  --text-24--letter-spacing: 0.10625em;
+  --text-24--font-weight: 700;
+
+  --text-18: 1.125rem;
+  --text-18--line-height: 1.5rem;
+  --text-18--letter-spacing: 0.08125em;
+  --text-18--font-weight: 700;
+
+  --text-15: 0.9375rem;
+  --text-15--line-height: 1.5625rem;
+  --text-15--letter-spacing: 0em;
+  --text-15--font-weight: 500;
+
+  --text-14: 0.875rem;
+  --text-14--line-height: 1.1875rem;
+  --text-14--letter-spacing: 0.625em;
+  --text-14--font-weight: 400;
+
+  --text-13: 0.8125rem;
+  --text-13--line-height: 1.5625rem;
+  --text-13--letter-spacing: 0.0625em;
+  --text-13--font-weight: 700;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-manrope);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Manrope, sans-serif;
+}
