@@ -23,7 +23,7 @@ const options = [
 const NavLinks = () => {
   return (
     <nav>
-      <ul className="flex flex-col items-center gap-4 md:flex-row md:gap-[34px]">
+      <ul className="flex flex-col items-center gap-4 md:flex-row md:gap-8.5">
         {options.map((item) => (
           <li key={item.name}>
             <Link

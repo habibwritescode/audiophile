@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 :root {
-  --background: #fafafa;
+  --background: #000;
   --foreground: #171717;
 }
 
@@ -26,13 +26,19 @@
 
   --text-56: 3.5rem;
   --text-56--line-height: 3.625rem;
-  --text-56--letter-spacing: 0.125em;
+  --text-56--letter-spacing: 0.05em;
+  /* --text-56--letter-spacing: 0.125em; */
   --text-56--font-weight: 700;
 
   --text-40: 2.5rem;
   --text-40--line-height: 2.75rem;
   --text-40--letter-spacing: 0.09375em;
   --text-40--font-weight: 700;
+
+  --text-36: 2.25rem;
+  --text-36--line-height: 2.5rem;
+  --text-36--letter-spacing: 0.080625em;
+  --text-36--font-weight: 700;
 
   --text-32: 2rem;
   --text-32--line-height: 2.25rem;
@@ -84,7 +90,7 @@
 }
 
 body {
-  background: var(--background);
+  /* background: var(--background); */
   color: var(--foreground);
   font-family: Manrope, sans-serif;
 }

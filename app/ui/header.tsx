@@ -3,8 +3,8 @@ import NavLinks from './nav-links';
 
 const Header = () => {
   return (
-    <header className="px-6 md:px-10">
-      <div className="mx-auto flex max-w-6xl items-center justify-between border-b border-b-[#979797] py-8 md:justify-start md:gap-[4.2rem] xl:gap-0 xl:py-9">
+    <header className="bg-neutral-dark md:px-10">
+      <div className="mx-auto flex max-w-6xl items-center justify-between border-b border-b-[#979797] px-6 py-8 md:justify-start md:gap-17 md:px-0 xl:gap-0 xl:py-9">
         <div className="xl:hidden">
           <Image src="/assets/shared/tablet/icon-hamburger.svg" width={16} height={15} alt="menu" />
         </div>
