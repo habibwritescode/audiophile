@@ -1,13 +1,24 @@
+'use client';
+
 import Image from 'next/image';
 
 import bestGearMobile from '../../public/assets/shared/mobile/image-best-gear.jpg';
 import bestGearTab from '../../public/assets/shared/tablet/image-best-gear.jpg';
 import bestGearDesktop from '../../public/assets/shared/desktop/image-best-gear.jpg';
+import { usePathname } from 'next/navigation';
+import { cn } from '../lib/helpers';
 
 const BringingYouTheBestGear = () => {
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
   return (
-    <section className="px-6 py-30 md:px-10 md:py-24 xl:py-50">
-      <div className="mx-auto grid max-w-6xl flex-col gap-10 md:gap-16 xl:grid-cols-2 xl:gap-31">
+    <section
+      className={cn('my-30 px-6 md:px-10 xl:my-40', {
+        'md:my-24 xl:my-50': isHome,
+      })}
+    >
+      <div className="mx-auto grid max-w-6xl gap-10 md:gap-16 xl:grid-cols-2 xl:gap-31">
         <div className="xl:order-2">
           <Image alt="" src={bestGearMobile} className="h-auto w-full rounded-lg md:hidden" />
           <Image

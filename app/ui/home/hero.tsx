@@ -14,18 +14,16 @@ const Hero = () => {
         alt=""
         fill
         quality={100}
-        objectFit="cover"
         priority
-        className="md:hidden"
+        className="object-cover md:hidden"
       />
       <Image
         src={tabletHero}
         alt=""
-        layout="fill"
+        fill
         quality={100}
-        objectFit="cover"
         priority
-        className="hidden md:block xl:hidden"
+        className="hidden object-cover md:block xl:hidden"
       />
 
       <Image
@@ -33,9 +31,8 @@ const Hero = () => {
         alt=""
         fill
         quality={100}
-        objectFit="cover"
         priority
-        className="hidden xl:block"
+        className="hidden object-cover xl:block"
       />
 
       <div className="absolute inset-0 bg-black/30" />

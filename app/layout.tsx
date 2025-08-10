@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     template: '%s | Audiophile',
     default: 'Audiophile',
   },
+  
   description: 'Audiophile ecommerce app',
 };
 

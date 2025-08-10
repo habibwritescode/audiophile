@@ -26,7 +26,7 @@ const ShopCategoryItem = ({ imgSrc, categoryName, className }: Props) => {
         <div className="flex items-center gap-3">
           <p className="text-13 text-black/50 uppercase">Shop</p>
 
-          <Image alt="" src={arrowRight} objectFit="cover" />
+          <Image alt="" src={arrowRight} className="object-cover" />
         </div>
       </div>
     </div>

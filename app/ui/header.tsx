@@ -1,14 +1,17 @@
 import Image from 'next/image';
 import NavLinks from './nav-links';
+import Link from 'next/link';
 
 const Header = () => {
   return (
     <header className="bg-neutral-dark md:px-10">
-      <div className="mx-auto flex max-w-6xl items-center justify-between border-b border-b-[#979797] px-6 py-8 md:justify-start md:gap-17 md:px-0 xl:gap-0 xl:py-9">
+      <div className="mx-auto flex max-w-6xl items-center justify-between border-b border-b-white/20 px-6 py-8 md:justify-start md:gap-17 md:px-0 xl:gap-0 xl:py-9">
         <div className="xl:hidden">
           <Image src="/assets/shared/tablet/icon-hamburger.svg" width={16} height={15} alt="menu" />
         </div>
-        <Image src="/assets/shared/desktop/logo.svg" alt="logo" width={143} height={25} />
+        <Link href="/">
+          <Image src="/assets/shared/desktop/logo.svg" alt="logo" width={143} height={25} />
+        </Link>
 
         <div className="ml-50 hidden xl:block">
           <NavLinks />
