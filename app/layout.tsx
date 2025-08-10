@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Manrope } from 'next/font/google';
-import './ui/globals.css';
-import Header from './ui/header';
-import Footer from './ui/footer';
-import BringingYouTheBestGear from './ui/bringing-you-the-best';
+import '@/ui/globals.css';
+import Header from '@/ui/header';
+import Footer from '@/ui/footer';
+import BringingYouTheBestGear from '@/ui/bringing-you-the-best';
 
 const manrope = Manrope({
   variable: '--font-manrope',

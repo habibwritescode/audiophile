@@ -1,6 +1,6 @@
-import Hero from './ui/home/hero';
-import ShopCategories from './ui/shop-categories/shop-categories';
-import ProductsShowcase from './ui/home/products-showcase';
+import Hero from '@/ui/home/hero';
+import ShopCategories from '@/ui/shop-categories/shop-categories';
+import ProductsShowcase from '@/ui/home/products-showcase';
 
 // import { headers } from 'next/headers';
 // import type { Metadata } from 'next';

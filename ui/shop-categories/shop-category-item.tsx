@@ -1,7 +1,7 @@
 import Image, { StaticImageData } from 'next/image';
 import React from 'react';
 
-import arrowRight from '../../../public/assets/shared/desktop/icon-arrow-right.svg';
+import arrowRight from '../../public/assets/shared/desktop/icon-arrow-right.svg';
 
 type Props = {
   imgSrc: StaticImageData;

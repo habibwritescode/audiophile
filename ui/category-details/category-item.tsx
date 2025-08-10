@@ -1,7 +1,7 @@
-import { Category } from '@/app/lib/types';
+import { Category } from '@/lib/types';
 import Image from 'next/image';
 import React from 'react';
-import Button from '../button';
+import Button from '@/ui/button';
 
 type Props = {
   data: Category;

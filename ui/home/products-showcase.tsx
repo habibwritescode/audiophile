@@ -1,17 +1,17 @@
 import React from 'react';
 import Image from 'next/image';
 
-import zx9SpeakerMobile from '../../../public/assets/home/mobile/image-speaker-zx9.png';
-import zx9SpeakerTab from '../../../public/assets/home/tablet/image-speaker-zx9.png';
-import zx9SpeakerDesktop from '../../../public/assets/home/desktop/image-speaker-zx9.png';
+import zx9SpeakerMobile from '../../public/assets/home/mobile/image-speaker-zx9.png';
+import zx9SpeakerTab from '../../public/assets/home/tablet/image-speaker-zx9.png';
+import zx9SpeakerDesktop from '../../public/assets/home/desktop/image-speaker-zx9.png';
 
-import zx7SpeakerMobile from '../../../public/assets/home/mobile/image-speaker-zx7.jpg';
-import zx7SpeakerTab from '../../../public/assets/home/tablet/image-speaker-zx7.jpg';
-import zx7SpeakerDesktop from '../../../public/assets/home/desktop/image-speaker-zx7.jpg';
+import zx7SpeakerMobile from '../../public/assets/home/mobile/image-speaker-zx7.jpg';
+import zx7SpeakerTab from '../../public/assets/home/tablet/image-speaker-zx7.jpg';
+import zx7SpeakerDesktop from '../../public/assets/home/desktop/image-speaker-zx7.jpg';
 
-import earphonesMobile from '../../../public/assets/home/mobile/image-earphones-yx1.jpg';
-import earphonesTab from '../../../public/assets/home/tablet/image-earphones-yx1.jpg';
-import earphonesDesktop from '../../../public/assets/home/desktop/image-earphones-yx1.jpg';
+import earphonesMobile from '../../public/assets/home/mobile/image-earphones-yx1.jpg';
+import earphonesTab from '../../public/assets/home/tablet/image-earphones-yx1.jpg';
+import earphonesDesktop from '../../public/assets/home/desktop/image-earphones-yx1.jpg';
 
 import Button from '../button';
 

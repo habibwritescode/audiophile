@@ -1,4 +1,4 @@
-import data from '@/app/lib/data.json';
+import data from '@/lib/data.json';
 import CategoryItem from './category-item';
 import ShopCategories from '../shop-categories/shop-categories';
 

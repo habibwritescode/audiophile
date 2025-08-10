@@ -1,12 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-
-import bestGearMobile from '../../public/assets/shared/mobile/image-best-gear.jpg';
-import bestGearTab from '../../public/assets/shared/tablet/image-best-gear.jpg';
-import bestGearDesktop from '../../public/assets/shared/desktop/image-best-gear.jpg';
 import { usePathname } from 'next/navigation';
-import { cn } from '../lib/helpers';
+
+import bestGearMobile from '../public/assets/shared/mobile/image-best-gear.jpg';
+import bestGearTab from '../public/assets/shared/tablet/image-best-gear.jpg';
+import bestGearDesktop from '../public/assets/shared/desktop/image-best-gear.jpg';
+import { cn } from '@/lib/helpers';
 
 const BringingYouTheBestGear = () => {
   const pathname = usePathname();
