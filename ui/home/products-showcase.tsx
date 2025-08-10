@@ -1,4 +1,3 @@
-import React from 'react';
 import Image from 'next/image';
 
 import zx9SpeakerMobile from '../../public/assets/home/mobile/image-speaker-zx9.png';

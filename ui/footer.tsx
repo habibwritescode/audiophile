@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import React from 'react';
 import NavLinks from './nav-links';
 
 const SocialIcons = () => {
