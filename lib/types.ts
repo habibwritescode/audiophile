@@ -1,4 +1,32 @@
-export interface Category {
+export interface IProductGallery {
+  first: {
+    mobile: string;
+    tablet: string;
+    desktop: string;
+  };
+  second: {
+    mobile: string;
+    tablet: string;
+    desktop: string;
+  };
+  third: {
+    mobile: string;
+    tablet: string;
+    desktop: string;
+  };
+}
+
+export interface SimilarProduct {
+  slug: string;
+  name: string;
+  image: {
+    mobile: string;
+    tablet: string;
+    desktop: string;
+  };
+}
+
+export interface Product {
   id: number;
   slug: string;
   name: string;
@@ -21,30 +49,6 @@ export interface Category {
     quantity: number;
     item: string;
   }[];
-  gallery: {
-    first: {
-      mobile: string;
-      tablet: string;
-      desktop: string;
-    };
-    second: {
-      mobile: string;
-      tablet: string;
-      desktop: string;
-    };
-    third: {
-      mobile: string;
-      tablet: string;
-      desktop: string;
-    };
-  };
-  others: {
-    slug: string;
-    name: string;
-    image: {
-      mobile: string;
-      tablet: string;
-      desktop: string;
-    };
-  }[];
+  gallery: IProductGallery;
+  others: SimilarProduct[];
 }

@@ -3,9 +3,9 @@ import { cn } from '@/lib/helpers';
 type Props = {
   children: React.ReactNode;
   variant?: 'primary' | 'secondary' | 'dark';
-};
+} & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-const Button = ({ children, variant = 'primary' }: Props) => {
+const Button = ({ children, variant = 'primary', ...props }: Props) => {
   return (
     <button
       className={cn('grid h-12 place-items-center px-8 text-13 uppercase', {
@@ -13,7 +13,10 @@ const Button = ({ children, variant = 'primary' }: Props) => {
         'border border-black bg-transparent text-black hover:bg-black hover:text-white':
           variant === 'secondary',
         'bg-black text-white hover:bg-[#4C4C4C]': variant === 'dark',
+        'cursor-not-allowed opacity-50': props.disabled,
+        'cursor-pointer': !props.disabled,
       })}
+      {...props}
     >
       {children}
     </button>

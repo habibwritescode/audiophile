@@ -34,7 +34,7 @@ const BringingYouTheBestGear = () => {
         </div>
 
         <div className="flex flex-col items-center justify-center gap-8 text-center xl:order-1 xl:items-start xl:text-start">
-          <p className="max-w-80 text-28 uppercase md:max-w-143 md:text-40 xl:max-w-110">
+          <p className="max-w-80 text-28 text-black uppercase md:max-w-143 md:text-40 xl:max-w-110">
             Bringing you the <span className="text-primary">best</span> audio gear
           </p>
           <p className="max-w-80 text-15 text-black/50 md:max-w-143 xl:max-w-110">

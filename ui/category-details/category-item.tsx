@@ -1,9 +1,10 @@
-import { Category } from '@/lib/types';
+import { Product } from '@/lib/types';
 import Image from 'next/image';
 import Button from '@/ui/button';
+import Link from 'next/link';
 
 type Props = {
-  data: Category;
+  data: Product;
   index: number;
 };
 
@@ -45,10 +46,12 @@ const CategoryItem = ({ data, index }: Props) => {
         <h2 className="mb-6 max-w-75 text-center text-28 text-black uppercase md:mb-8 md:text-40 xl:text-start">
           {data.name}
         </h2>
-        <p className="mb-6 max-w-80 text-center text-black/50 md:max-w-143 xl:mb-10 xl:max-w-111.25 xl:text-start">
+        <p className="txt-15 mb-6 max-w-80 text-center text-15 text-black/50 md:max-w-143 xl:mb-10 xl:max-w-111.25 xl:text-start">
           {data.description}
         </p>
-        <Button>See product</Button>
+        <Link href={`/product/${data.slug}`}>
+          <Button>See product</Button>
+        </Link>
       </div>
     </div>
   );

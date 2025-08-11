@@ -4,6 +4,7 @@ import Button from '@/ui/button';
 import mobileHero from '../../public/assets/home/mobile/image-header.jpg';
 import tabletHero from '../../public/assets/home/tablet/image-header.jpg';
 import desktopHero from '../../public/assets/home/desktop/image-hero.jpg';
+import Link from 'next/link';
 
 const Hero = () => {
   return (
@@ -46,7 +47,9 @@ const Hero = () => {
           Experience natural, lifelike audio and exceptional build quality made for the passionate
           music enthusiast.
         </p>
-        <Button>See Product</Button>
+        <Link href="/product/xx99-mark-two-headphones">
+          <Button>See Product</Button>
+        </Link>
       </div>
     </section>
   );
