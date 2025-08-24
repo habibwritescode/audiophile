@@ -11,11 +11,13 @@ import { cn } from '@/lib/helpers';
 const BringingYouTheBestGear = () => {
   const pathname = usePathname();
   const isHome = pathname === '/';
+  const isCheckout = pathname === '/checkout';
 
   return (
     <section
       className={cn('my-30 px-6 md:px-10 xl:my-40', {
         'md:my-24 xl:my-50': isHome,
+        hidden: isCheckout,
       })}
     >
       <div className="mx-auto grid max-w-6xl gap-10 md:gap-16 xl:grid-cols-2 xl:gap-31">
