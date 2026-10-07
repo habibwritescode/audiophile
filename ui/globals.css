@@ -3,6 +3,14 @@
 :root {
   --background: #000;
   --foreground: #171717;
+  /* Matches ui/header.tsx; modals and the hero sit just below it */
+  --header-height: 90px;
+}
+
+@media (width >= 80rem) {
+  :root {
+    --header-height: 98px;
+  }
 }
 
 @layer base {
@@ -87,13 +95,6 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-manrope);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {

@@ -14,9 +14,9 @@ const Modal = ({ isOpen, onClose, children }: Props) => {
       transition
       className="relative z-50 transition duration-300 ease-out data-closed:opacity-0"
     >
-      <DialogBackdrop className="fixed inset-0 top-22.5 bg-black/50 xl:top-24.5" />
+      <DialogBackdrop className="fixed inset-0 top-(--header-height) bg-black/50" />
 
-      <div className="fixed inset-0 top-22.5 overflow-y-auto xl:top-24.5">
+      <div className="fixed inset-0 top-(--header-height) overflow-y-auto">
         <DialogPanel className="mx-auto max-w-6xl">{children}</DialogPanel>
       </div>
     </Dialog>
