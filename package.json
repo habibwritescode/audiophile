@@ -14,7 +14,8 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
     "db:reset": "tsx scripts/assert-local-database.ts && prisma migrate reset",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "vercel-build": "if [ \"$VERCEL_ENV\" = production ] || [ \"$VERCEL_ENV\" = preview ]; then prisma migrate deploy && prisma db seed; fi && next build"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
