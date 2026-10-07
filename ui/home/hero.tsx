@@ -23,8 +23,7 @@ const Hero = () => {
       <picture>
         <source media="(min-width: 80rem)" srcSet={desktopSrcSet} />
         <source media="(min-width: 48rem)" srcSet={tabletSrcSet} />
-        {/* eslint-disable-next-line @next/next/no-img-element -- img props come from getImageProps */}
-        <img {...imgProps} srcSet={mobileSrcSet} className="object-cover" />
+        <img {...imgProps} alt="" srcSet={mobileSrcSet} className="object-cover" />
       </picture>
 
       <div className="absolute inset-0 bg-black/30" />
