@@ -11,7 +11,7 @@ const CategoryItem = ({ data, index }: Props) => {
   const isOddIndex = index % 2 !== 0;
 
   return (
-    <div className="grid gap-8 md:gap-13 xl:grid-cols-2 xl:gap-31.25">
+    <li className="grid gap-8 md:gap-13 xl:grid-cols-2 xl:gap-31.25">
       <div className={isOddIndex ? 'xl:order-2' : ''}>
         <Image
           alt=""
@@ -29,10 +29,10 @@ const CategoryItem = ({ data, index }: Props) => {
         />
         <Image
           alt=""
-          src={data.categoryImage.mobile}
+          src={data.categoryImage.desktop}
           width={540}
           height={560}
-          className="hidden xl:block"
+          className="hidden h-auto w-full rounded-lg xl:block"
         />
       </div>
 
@@ -45,12 +45,12 @@ const CategoryItem = ({ data, index }: Props) => {
         <h2 className="mb-6 max-w-75 text-center text-28 text-black uppercase md:mb-8 md:text-40 xl:text-start">
           {data.name}
         </h2>
-        <p className="txt-15 mb-6 max-w-80 text-center text-15 text-black/50 md:max-w-143 xl:mb-10 xl:max-w-111.25 xl:text-start">
+        <p className="mb-6 max-w-80 text-center text-15 text-black/50 md:max-w-143 xl:mb-10 xl:max-w-111.25 xl:text-start">
           {data.description}
         </p>
         <ButtonLink href={`/product/${data.slug}`}>See product</ButtonLink>
       </div>
-    </div>
+    </li>
   );
 };
 
