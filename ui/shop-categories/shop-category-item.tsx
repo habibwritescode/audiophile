@@ -1,4 +1,5 @@
 import Image, { StaticImageData } from 'next/image';
+import Link from 'next/link';
 
 import arrowRight from '../../public/assets/shared/desktop/icon-arrow-right.svg';
 
@@ -6,12 +7,15 @@ type Props = {
   imgSrc: StaticImageData;
   categoryName: string;
   className: string;
+  onClick?: () => void;
 };
 
-const ShopCategoryItem = ({ imgSrc, categoryName, className }: Props) => {
+const ShopCategoryItem = ({ imgSrc, categoryName, className, onClick }: Props) => {
   return (
-    <div
-      className={`relative flex h-41.25 items-end justify-center rounded-lg bg-gray-100 pb-6 xl:h-51 ${className}`}
+    <Link
+      href={`/category/${categoryName.toLowerCase()}`}
+      onClick={onClick}
+      className={`group relative flex h-41.25 items-end justify-center rounded-lg bg-gray-100 pb-6 xl:h-51 ${className}`}
     >
       <Image
         alt=""
@@ -23,12 +27,14 @@ const ShopCategoryItem = ({ imgSrc, categoryName, className }: Props) => {
       <div className="grid place-items-center gap-4">
         <p className="text-15 font-bold text-black uppercase">{categoryName}</p>
         <div className="flex items-center gap-3">
-          <p className="text-13 text-black/50 uppercase">Shop</p>
+          <p className="text-13 text-black/50 uppercase transition-colors group-hover:text-primary">
+            Shop
+          </p>
 
           <Image alt="" src={arrowRight} className="object-cover" />
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
