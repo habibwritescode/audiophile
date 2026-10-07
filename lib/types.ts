@@ -30,6 +30,9 @@ export interface Product {
   id: number;
   slug: string;
   name: string;
+  shortName: string;
+  cartImage: string;
+  stock: number;
   image: {
     mobile: string;
     tablet: string;
