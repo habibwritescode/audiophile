@@ -3,59 +3,26 @@
 import { useState } from 'react';
 import TextInput from '../inputs/text-input';
 import RadioInput from '../inputs/radio-input';
+import {
+  CheckoutErrors,
+  CheckoutField,
+  PaymentMethod,
+  initialCheckoutValues,
+  validateCheckout,
+} from '@/lib/checkout-validation';
 
 import cashOnDeliveryIcon from '@/public/assets/checkout/icon-cash-on-delivery.svg';
 import Image from 'next/image';
 
 export const CHECKOUT_FORM_ID = 'checkout-form';
 
-type PaymentMethod = 'e-money' | 'cash';
-
-const initialValues = {
-  name: '',
-  email: '',
-  phone: '',
-  address: '',
-  zip: '',
-  city: '',
-  country: '',
-  eMoneyNumber: '',
-  eMoneyPin: '',
-};
-
-type FieldName = keyof typeof initialValues;
-type Errors = Partial<Record<FieldName, string>>;
-
-const formatRules: Partial<Record<FieldName, RegExp>> = {
-  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  // 7–15 digits, optionally separated by spaces, dashes or brackets
-  phone: /^\+?(?:[\s()-]*\d){7,15}[\s()-]*$/,
-  zip: /^(?=.*[A-Za-z\d])[A-Za-z\d\s-]{3,10}$/,
-  eMoneyNumber: /^\d{9}$/,
-  eMoneyPin: /^\d{4}$/,
-};
-
-const validate = (values: typeof initialValues, paymentMethod: PaymentMethod) => {
-  const errors: Errors = {};
-  const fields = (Object.keys(values) as FieldName[]).filter(
-    (field) => paymentMethod === 'e-money' || !field.startsWith('eMoney')
-  );
-
-  for (const field of fields) {
-    const value = values[field].trim();
-    if (!value) errors[field] = 'Can’t be empty';
-    else if (formatRules[field] && !formatRules[field].test(value)) errors[field] = 'Wrong format';
-  }
-  return errors;
-};
-
 type Props = {
   onSubmit: () => void;
 };
 
 const CheckoutForm = ({ onSubmit }: Props) => {
-  const [values, setValues] = useState(initialValues);
-  const [errors, setErrors] = useState<Errors>({});
+  const [values, setValues] = useState(initialCheckoutValues);
+  const [errors, setErrors] = useState<CheckoutErrors>({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('e-money');
 
@@ -63,19 +30,19 @@ const CheckoutForm = ({ onSubmit }: Props) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const nextValues = { ...values, [e.target.name]: e.target.value };
     setValues(nextValues);
-    if (hasSubmitted) setErrors(validate(nextValues, paymentMethod));
+    if (hasSubmitted) setErrors(validateCheckout(nextValues, paymentMethod));
   };
 
   const handlePaymentMethodChange = (method: PaymentMethod) => {
     setPaymentMethod(method);
-    if (hasSubmitted) setErrors(validate(values, method));
+    if (hasSubmitted) setErrors(validateCheckout(values, method));
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setHasSubmitted(true);
 
-    const nextErrors = validate(values, paymentMethod);
+    const nextErrors = validateCheckout(values, paymentMethod);
     setErrors(nextErrors);
 
     const firstInvalid = Object.keys(nextErrors)[0];
@@ -86,7 +53,7 @@ const CheckoutForm = ({ onSubmit }: Props) => {
     onSubmit();
   };
 
-  const fieldProps = (name: FieldName) => ({
+  const fieldProps = (name: CheckoutField) => ({
     name,
     value: values[name],
     onChange: handleChange,
