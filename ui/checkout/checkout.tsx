@@ -7,16 +7,16 @@ import CheckoutForm from './checkout-form';
 import CheckoutSummary from './summary';
 import ConfirmationModal from './confirmation-modal';
 
-const SHIPPING_FEE = 50;
+const SHIPPING_FEE_CENTS = 5000;
 const VAT_RATE = 0.2;
 
 const Checkout = () => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
   const items = placeholderCartItems;
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = items.reduce((sum, item) => sum + item.priceCents * item.quantity, 0);
   const vat = Math.round(total * VAT_RATE);
-  const grandTotal = total + SHIPPING_FEE;
+  const grandTotal = total + SHIPPING_FEE_CENTS;
 
   return (
     <>
@@ -28,7 +28,7 @@ const Checkout = () => {
             <CheckoutSummary
               items={items}
               total={total}
-              shipping={SHIPPING_FEE}
+              shipping={SHIPPING_FEE_CENTS}
               vat={vat}
               grandTotal={grandTotal}
             />

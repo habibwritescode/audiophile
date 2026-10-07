@@ -42,7 +42,7 @@ export interface Product {
     desktop: string;
   };
   new: boolean;
-  price: number;
+  priceCents: number;
   description: string;
   features: string;
   includes: {

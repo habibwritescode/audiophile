@@ -1,7 +1,11 @@
 import data from './data.json';
 import { Product } from './types';
 
-const products: Product[] = data;
+// Temporary until products are read from the database, which stores cents
+const products: Product[] = data.map(({ price, ...product }) => ({
+  ...product,
+  priceCents: price * 100,
+}));
 
 export const categories = [...new Set(products.map((product) => product.category))];
 
