@@ -6,7 +6,14 @@ import tabletHero from '../../public/assets/home/tablet/image-header.jpg';
 import desktopHero from '../../public/assets/home/desktop/image-hero.jpg';
 
 // Art direction: one <picture> so each device downloads only its own hero image
-const common = { alt: '', fill: true, sizes: '100vw', priority: true };
+// getImageProps doesn't add the preload <Image priority> does, so request high priority directly
+const common = {
+  alt: '',
+  fill: true,
+  sizes: '100vw',
+  priority: true,
+  fetchPriority: 'high' as const,
+};
 const {
   props: { srcSet: desktopSrcSet },
 } = getImageProps({ ...common, src: desktopHero });
