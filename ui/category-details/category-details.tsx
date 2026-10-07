@@ -1,4 +1,4 @@
-import data from '@/lib/data.json';
+import { getProductsByCategory } from '@/lib/products';
 import CategoryItem from './category-item';
 import ShopCategories from '../shop-categories/shop-categories';
 
@@ -7,7 +7,7 @@ type Props = {
 };
 
 const CategoryDetails = ({ categoryName }: Props) => {
-  const categoryItems = data.filter((item) => item.category === categoryName);
+  const categoryItems = getProductsByCategory(categoryName);
 
   return (
     <div>
