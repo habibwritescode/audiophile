@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAllProducts, getProduct } from '@/lib/products';
 import ProductDetails from '@/ui/product-details/product-details';
+import BringingYouTheBestGear from '@/ui/bringing-you-the-best';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -22,6 +23,7 @@ const Page = async ({ params }: Props) => {
   return (
     <div>
       <ProductDetails product={product} />
+      <BringingYouTheBestGear />
     </div>
   );
 };

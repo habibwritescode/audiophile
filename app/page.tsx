@@ -1,6 +1,7 @@
 import Hero from '@/ui/home/hero';
 import ShopCategories from '@/ui/shop-categories/shop-categories';
 import ProductsShowcase from '@/ui/home/products-showcase';
+import BringingYouTheBestGear from '@/ui/bringing-you-the-best';
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
           <ProductsShowcase />
         </div>
       </section>
+      <BringingYouTheBestGear className="md:my-24 xl:my-50" />
     </div>
   );
 }

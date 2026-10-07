@@ -1,25 +1,13 @@
-'use client';
-
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
 
 import bestGearMobile from '../public/assets/shared/mobile/image-best-gear.jpg';
 import bestGearTab from '../public/assets/shared/tablet/image-best-gear.jpg';
 import bestGearDesktop from '../public/assets/shared/desktop/image-best-gear.jpg';
 import { cn } from '@/lib/helpers';
 
-const BringingYouTheBestGear = () => {
-  const pathname = usePathname();
-  const isHome = pathname === '/';
-  const isCheckout = pathname === '/checkout';
-
+const BringingYouTheBestGear = ({ className }: { className?: string }) => {
   return (
-    <section
-      className={cn('my-30 px-6 md:px-10 xl:my-40', {
-        'md:my-24 xl:my-50': isHome,
-        hidden: isCheckout,
-      })}
-    >
+    <section className={cn('my-30 px-6 md:px-10 xl:my-40', className)}>
       <div className="mx-auto grid max-w-6xl gap-10 md:gap-16 xl:grid-cols-2 xl:gap-31">
         <div className="xl:order-2">
           <Image alt="" src={bestGearMobile} className="h-auto w-full rounded-lg md:hidden" />
