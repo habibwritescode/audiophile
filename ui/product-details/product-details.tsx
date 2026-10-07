@@ -48,7 +48,7 @@ const ProductDetails = ({ product }: { product: Product }) => {
             <p className="mb-6 max-w-143 text-15 text-black/50 md:mb-8 xl:mb-10 xl:max-w-111.25 xl:text-start">
               {product.description}
             </p>
-            <p className="mb-8 text-18 text-black">{formatAmount(product.price)}</p>
+            <p className="mb-8 text-18 text-black">{formatAmount(product.priceCents)}</p>
             <AddToCart />
           </div>
         </section>

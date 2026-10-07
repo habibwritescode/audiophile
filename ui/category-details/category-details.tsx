@@ -1,13 +1,14 @@
 import { getProductsByCategory } from '@/lib/products';
+import { Category } from '@/lib/generated/prisma/enums';
 import CategoryItem from './category-item';
 import ShopCategories from '../shop-categories/shop-categories';
 
 type Props = {
-  categoryName: string;
+  categoryName: Category;
 };
 
-const CategoryDetails = ({ categoryName }: Props) => {
-  const categoryItems = getProductsByCategory(categoryName);
+const CategoryDetails = async ({ categoryName }: Props) => {
+  const categoryItems = await getProductsByCategory(categoryName);
 
   return (
     <div>

@@ -16,7 +16,7 @@ const Cart = ({ isOpen, onClose }: Props) => {
   const [items, setItems] = useState(placeholderCartItems);
 
   const itemCount = items.length;
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = items.reduce((sum, item) => sum + item.priceCents * item.quantity, 0);
 
   const handleQtyChange = (slug: string, quantity: number) => {
     setItems((prev) =>
@@ -48,7 +48,7 @@ const Cart = ({ isOpen, onClose }: Props) => {
                 <CartItem
                   key={item.slug}
                   name={item.name}
-                  price={item.price}
+                  priceCents={item.priceCents}
                   qty={item.quantity}
                   image={item.image}
                   onQtyChange={(qty) => handleQtyChange(item.slug, qty)}

@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Category {
+  headphones
+  speakers
+  earphones
+}
+
+model Product {
+  id            Int              @id @default(autoincrement())
+  slug          String           @unique
+  name          String
+  /// Short label for the cart and order summaries, e.g. "XX99 MK II"
+  shortName     String
+  /// Name on "You may also like" cards, e.g. "XX99 Mark I" (the design shortens some names)
+  cardName      String
+  category      Category
+  isNew         Boolean          @default(false)
+  /// Price in cents: 299900 is $2,999
+  priceCents    Int
+  description   String
+  features      String
+  /// Never negative: enforced by a CHECK constraint in the first migration
+  stock         Int
+  /// { mobile, tablet, desktop }
+  image         Json
+  /// { mobile, tablet, desktop }
+  categoryImage Json
+  /// { mobile, tablet, desktop }, shown in "You may also like"
+  thumbnail     Json
+  cartImage     String
+  /// { first, second, third }, each { mobile, tablet, desktop }
+  gallery       Json
+  /// [{ quantity, item }] in display order
+  includes      Json
+  relatedTo     RelatedProduct[] @relation("product")
+  relatedFrom   RelatedProduct[] @relation("related")
+
+  @@index([category])
+}
+
+model RelatedProduct {
+  productId Int
+  relatedId Int
+  /// Display order, 0–2
+  position  Int
+  product   Product @relation("product", fields: [productId], references: [id], onDelete: Cascade)
+  related   Product @relation("related", fields: [relatedId], references: [id], onDelete: Cascade)
+
+  @@id([productId, relatedId])
+}

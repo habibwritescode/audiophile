@@ -30,6 +30,9 @@ export interface Product {
   id: number;
   slug: string;
   name: string;
+  shortName: string;
+  cartImage: string;
+  stock: number;
   image: {
     mobile: string;
     tablet: string;
@@ -42,7 +45,7 @@ export interface Product {
     desktop: string;
   };
   new: boolean;
-  price: number;
+  priceCents: number;
   description: string;
   features: string;
   includes: {

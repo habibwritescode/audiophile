@@ -28,7 +28,7 @@ const CheckoutSummary = ({ items, total, shipping, vat, grandTotal }: Props) => 
           <CartItem
             key={item.slug}
             name={item.name}
-            price={item.price}
+            priceCents={item.priceCents}
             qty={item.quantity}
             image={item.image}
           />
