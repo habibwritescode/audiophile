@@ -6,11 +6,19 @@ import Link from 'next/link';
 import Cart from './cart/cart';
 import Modal from './modal';
 import ShopCategories from './shop-categories/shop-categories';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const Header = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // The menu is mobile/tablet only; close it if the window grows to desktop width
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 80rem)');
+    const closeOnDesktop = () => desktop.matches && setIsMenuOpen(false);
+    desktop.addEventListener('change', closeOnDesktop);
+    return () => desktop.removeEventListener('change', closeOnDesktop);
+  }, []);
 
   return (
     <>
@@ -26,7 +34,12 @@ const Header = () => {
             <Image src="/assets/shared/tablet/icon-hamburger.svg" width={16} height={15} alt="" />
           </button>
           <Link href="/">
-            <Image src="/assets/shared/desktop/logo.svg" alt="logo" width={143} height={25} />
+            <Image
+              src="/assets/shared/desktop/logo.svg"
+              alt="Audiophile home"
+              width={143}
+              height={25}
+            />
           </Link>
 
           <div className="ml-50 hidden xl:block">
