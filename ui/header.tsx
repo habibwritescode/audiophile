@@ -7,9 +7,18 @@ import Cart from './cart/cart';
 import Modal from './modal';
 import ShopCategories from './shop-categories/shop-categories';
 import { useEffect, useState } from 'react';
+import { useCartHydrated, useCartStore } from '@/lib/cart-store';
+
+// Total items (quantities added up), unlike the modal title, which counts products
+const useCartItemCount = () => {
+  const hydrated = useCartHydrated();
+  const count = useCartStore((state) => state.lines.reduce((sum, line) => sum + line.quantity, 0));
+  return hydrated ? count : 0;
+};
 
 const Header = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const itemCount = useCartItemCount();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // The menu is mobile/tablet only; close it if the window grows to desktop width
@@ -48,11 +57,23 @@ const Header = () => {
 
           <button
             type="button"
-            aria-label="Open cart"
+            aria-label={
+              itemCount
+                ? `Open cart, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`
+                : 'Open cart'
+            }
             onClick={() => setIsCartOpen((prev) => !prev)}
-            className="-m-2 p-2 md:ml-auto"
+            className="relative -m-2 p-2 md:ml-auto"
           >
             <Image src="/assets/shared/desktop/icon-cart.svg" alt="" width={23} height={20} />
+            {itemCount > 0 && (
+              <span
+                aria-hidden="true"
+                className="absolute -top-1 -right-2 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[0.625rem] leading-none font-bold text-white"
+              >
+                {itemCount > 99 ? '99+' : itemCount}
+              </span>
+            )}
           </button>
         </div>
       </header>

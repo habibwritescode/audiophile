@@ -26,9 +26,12 @@ type ButtonProps = {
 } & Omit<StyleProps, 'disabled'> &
   React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-const Button = ({ children, variant, fullWidth, ...props }: ButtonProps) => {
+const Button = ({ children, variant, fullWidth, className, ...props }: ButtonProps) => {
   return (
-    <button className={buttonClasses({ variant, fullWidth, disabled: props.disabled })} {...props}>
+    <button
+      className={cn(buttonClasses({ variant, fullWidth, disabled: props.disabled }), className)}
+      {...props}
+    >
       {children}
     </button>
   );
