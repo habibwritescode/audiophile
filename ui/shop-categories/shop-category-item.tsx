@@ -17,12 +17,7 @@ const ShopCategoryItem = ({ imgSrc, categoryName, className, onClick }: Props) =
       onClick={onClick}
       className={`group relative flex h-41.25 items-end justify-center rounded-lg bg-gray-100 pb-6 xl:h-51 ${className}`}
     >
-      <Image
-        alt=""
-        src={imgSrc}
-        className="absolute bottom-[55%] h-auto w-35 xl:w-40"
-        quality={100}
-      />
+      <Image alt="" src={imgSrc} className="absolute bottom-[55%] h-auto w-35 xl:w-40" />
 
       <div className="grid place-items-center gap-4">
         <p className="text-15 font-bold text-black uppercase">{categoryName}</p>
