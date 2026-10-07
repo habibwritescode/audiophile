@@ -1,7 +1,6 @@
 import { SimilarProduct } from '@/lib/types';
 import Image from 'next/image';
-import Button from '@/ui/button';
-import Link from 'next/link';
+import { ButtonLink } from '@/ui/button';
 
 const SimilarProducts = ({ products }: { products: SimilarProduct[] }) => {
   return (
@@ -36,9 +35,7 @@ const SimilarProducts = ({ products }: { products: SimilarProduct[] }) => {
             />
 
             <p className="my-8 text-24 text-black md:mt-10">{product.name}</p>
-            <Link href={`/product/${product.slug}`}>
-              <Button>See Product</Button>
-            </Link>
+            <ButtonLink href={`/product/${product.slug}`}>See Product</ButtonLink>
           </li>
         ))}
       </ul>

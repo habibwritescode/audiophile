@@ -1,7 +1,6 @@
 import { Product } from '@/lib/types';
 import Image from 'next/image';
-import Button from '@/ui/button';
-import Link from 'next/link';
+import { ButtonLink } from '@/ui/button';
 
 type Props = {
   data: Product;
@@ -49,9 +48,7 @@ const CategoryItem = ({ data, index }: Props) => {
         <p className="txt-15 mb-6 max-w-80 text-center text-15 text-black/50 md:max-w-143 xl:mb-10 xl:max-w-111.25 xl:text-start">
           {data.description}
         </p>
-        <Link href={`/product/${data.slug}`}>
-          <Button>See product</Button>
-        </Link>
+        <ButtonLink href={`/product/${data.slug}`}>See product</ButtonLink>
       </div>
     </div>
   );
