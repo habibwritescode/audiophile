@@ -1,37 +1,57 @@
-import React from 'react';
+import { formatAmount } from '@/lib/helpers';
+import { CartItemData } from '@/lib/placeholder-cart';
 import CartItem from '../cart/cart-item';
 import Button from '../button';
+import { CHECKOUT_FORM_ID } from './checkout-form';
 
-const CheckoutSummary = () => {
+type Props = {
+  items: CartItemData[];
+  total: number;
+  shipping: number;
+  vat: number;
+  grandTotal: number;
+};
+
+const CheckoutSummary = ({ items, total, shipping, vat, grandTotal }: Props) => {
   const summaryAmounts = [
-    { title: 'Total', value: '5396' },
-    { title: 'Shipping', value: '50' },
-    { title: 'VAT (Included)', value: '5396' },
+    { title: 'Total', value: total },
+    { title: 'Shipping', value: shipping },
+    { title: 'VAT (Included)', value: vat },
   ];
+
   return (
-    <div className="rounded-lg bg-white px-6 py-8 md:px-8.5">
-      <h1 className="mb-8 text-18 text-black uppercase">summary</h1>
+    <div className="self-start rounded-lg bg-white px-6 py-8 md:px-8.5">
+      <h2 className="mb-8 text-18 text-black uppercase">summary</h2>
 
       <ul className="grid gap-6">
-        <CartItem name="xx99" price={2999} qty={2} />
-        <CartItem name="xx99" price={2999} qty={2} />
+        {items.map((item) => (
+          <CartItem
+            key={item.slug}
+            name={item.name}
+            price={item.price}
+            qty={item.quantity}
+            image={item.image}
+          />
+        ))}
       </ul>
 
       <div className="mt-8 mb-6 grid gap-2">
         {summaryAmounts.map((item) => (
           <div key={item.title} className="flex justify-between">
             <p className="text-15 text-black/50 uppercase">{item.title}</p>
-            <p className="text-18 tracking-normal text-black">{item.value}</p>
+            <p className="text-18 tracking-normal text-black">{formatAmount(item.value)}</p>
           </div>
         ))}
       </div>
 
       <div className="mb-8 flex justify-between">
         <p className="text-15 text-black/50 uppercase">Grand Total</p>
-        <p className="text-18 tracking-normal text-primary">1234</p>
+        <p className="text-18 tracking-normal text-primary">{formatAmount(grandTotal)}</p>
       </div>
 
-      <Button fullWidth>Continue & Pay</Button>
+      <Button fullWidth type="submit" form={CHECKOUT_FORM_ID}>
+        Continue & Pay
+      </Button>
     </div>
   );
 };

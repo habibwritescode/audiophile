@@ -1,25 +1,29 @@
+import { cn } from '@/lib/helpers';
+
 type Props = {
   label: string;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
-const RadioInput = ({ label, name, onChange, checked }: Props) => {
+const RadioInput = ({ label, name, value, checked, onChange }: Props) => {
   return (
-    <div
-      className={`flex h-14 items-center gap-4 rounded-lg border border-[#CFCFCF] px-4 ${checked ? 'border-primary' : ''}`}
+    <label
+      className={cn(
+        'flex h-14 cursor-pointer items-center gap-4 rounded-lg border border-[#CFCFCF] px-4 transition-colors hover:border-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary',
+        { 'border-primary': checked }
+      )}
     >
-      <div className="grid size-5 place-items-center rounded-full border border-[#CFCFCF]">
+      <span className="grid size-5 place-items-center rounded-full border border-[#CFCFCF]">
         <input
-          id={name}
           name={name}
+          value={value}
           type="radio"
+          checked={checked}
           onChange={onChange}
-          className="size-2.5 appearance-none rounded-full checked:bg-primary"
+          className="size-2.5 cursor-pointer appearance-none rounded-full outline-none checked:bg-primary"
         />
-      </div>
-      <label htmlFor={name} className="text-14 font-bold -tracking-[0.25px] text-black">
-        {label}
-      </label>
-    </div>
+      </span>
+      <span className="text-14 font-bold -tracking-[0.25px] text-black">{label}</span>
+    </label>
   );
 };
 

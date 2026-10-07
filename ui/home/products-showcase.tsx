@@ -12,8 +12,7 @@ import earphonesMobile from '../../public/assets/home/mobile/image-earphones-yx1
 import earphonesTab from '../../public/assets/home/tablet/image-earphones-yx1.jpg';
 import earphonesDesktop from '../../public/assets/home/desktop/image-earphones-yx1.jpg';
 
-import Button from '../button';
-import Link from 'next/link';
+import { ButtonLink } from '../button';
 
 const ProductsShowcase = () => {
   return (
@@ -36,9 +35,9 @@ const ProductsShowcase = () => {
             Upgrade to premium speakers that are phenomenally built to deliver truly remarkable
             sound.
           </p>
-          <Link href="/product/zx9-speaker">
-            <Button variant="dark"> See Product</Button>
-          </Link>
+          <ButtonLink href="/product/zx9-speaker" variant="dark">
+            See Product
+          </ButtonLink>
         </div>
       </div>
       {/* // ZX7 */}
@@ -57,9 +56,9 @@ const ProductsShowcase = () => {
 
         <div className="absolute top-1/2 left-6 flex -translate-y-1/2 flex-col gap-8 md:left-15">
           <p className="text-28 text-black">ZX7 SPEAKER</p>
-          <Link href="/product/zx7-speaker">
-            <Button variant="secondary">See Product</Button>
-          </Link>
+          <ButtonLink href="/product/zx7-speaker" variant="secondary">
+            See Product
+          </ButtonLink>
         </div>
       </div>
 
@@ -81,9 +80,9 @@ const ProductsShowcase = () => {
 
         <div className="flex flex-col justify-center gap-8 rounded-lg bg-gray-100 px-6 py-10 md:left-15 md:pl-10 xl:pl-24">
           <p className="text-28 text-black">YX1 EARPHONES</p>
-          <Link href="/product/yx1-earphones">
-            <Button variant="secondary">See Product</Button>
-          </Link>
+          <ButtonLink href="/product/yx1-earphones" variant="secondary">
+            See Product
+          </ButtonLink>
         </div>
       </div>
     </div>

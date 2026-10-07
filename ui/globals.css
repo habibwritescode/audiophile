@@ -3,6 +3,14 @@
 :root {
   --background: #000;
   --foreground: #171717;
+  /* Matches ui/header.tsx; modals and the hero sit just below it */
+  --header-height: 90px;
+}
+
+@media (width >= 80rem) {
+  :root {
+    --header-height: 98px;
+  }
 }
 
 @layer base {
@@ -24,7 +32,7 @@
   --color-gray-100: #f1f1f1;
   --color-gray-50: #fafafa;
   --color-gray-200: #f2f2f2;
-  --color-red: #CD2C2C;
+  --color-red: #cd2c2c;
 
   --text-56: 3.5rem;
   --text-56--line-height: 3.625rem;
@@ -87,13 +95,6 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-manrope);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
