@@ -3,6 +3,7 @@ import { Manrope } from 'next/font/google';
 import '@/ui/globals.css';
 import Header from '@/ui/header';
 import Footer from '@/ui/footer';
+import CartHydration from '@/ui/cart/cart-hydration';
 
 const manrope = Manrope({
   variable: '--font-manrope',
@@ -28,6 +29,7 @@ export default function RootLayout({
       <body
         className={`flex min-h-screen flex-col bg-white ${manrope.variable} text-15 antialiased`}
       >
+        <CartHydration />
         <Header />
         <main className="flex-grow">{children}</main>
         <Footer />
