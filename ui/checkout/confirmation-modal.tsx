@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { formatAmount } from '@/lib/helpers';
-import { CartItemData } from '@/lib/placeholder-cart';
+import { CartLine } from '@/lib/cart-store';
 import Modal from '../modal';
 import { ButtonLink } from '../button';
 import CartItem from '../cart/cart-item';
@@ -10,12 +10,12 @@ import confirmOrderIcon from '@/public/assets/checkout/icon-order-confirmation.s
 
 type Props = {
   isOpen: boolean;
-  onClose: () => void;
-  items: CartItemData[];
+  onBackToHome: () => void;
+  items: CartLine[];
   grandTotal: number;
 };
 
-const ConfirmationModal = ({ isOpen, onClose, items, grandTotal }: Props) => {
+const ConfirmationModal = ({ isOpen, onBackToHome, items, grandTotal }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const visibleItems = isExpanded ? items : items.slice(0, 1);
@@ -40,10 +40,10 @@ const ConfirmationModal = ({ isOpen, onClose, items, grandTotal }: Props) => {
                 {visibleItems.map((item) => (
                   <CartItem
                     key={item.slug}
-                    name={item.name}
+                    name={item.shortName}
                     priceCents={item.priceCents}
                     qty={item.quantity}
-                    image={item.image}
+                    image={item.cartImage}
                   />
                 ))}
               </ul>
@@ -66,7 +66,7 @@ const ConfirmationModal = ({ isOpen, onClose, items, grandTotal }: Props) => {
             </div>
           </div>
 
-          <ButtonLink href="/" onClick={onClose} fullWidth>
+          <ButtonLink href="/" onClick={onBackToHome} fullWidth>
             Back to home
           </ButtonLink>
         </div>

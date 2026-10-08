@@ -18,7 +18,7 @@ const ProductsShowcase = () => {
   return (
     <div className="grid gap-6 md:gap-8 xl:gap-12">
       <div className="grid place-items-center gap-9 overflow-hidden rounded-lg bg-primary bg-[url('/assets/home/desktop/pattern-circles.svg')] bg-cover bg-[50%_-130px] bg-no-repeat px-6 py-14 md:gap-16 md:bg-auto md:bg-[50%_-280px] md:pb-16 xl:grid-cols-2 xl:bg-[-120px_0px] xl:pl-30">
-        <Image alt="" src={zx9SpeakerMobile} className="h-auto w-40 md:hidden" quality={100} />
+        <Image alt="" src={zx9SpeakerMobile} className="h-auto w-40 md:hidden" />
         <Image alt="" src={zx9SpeakerTab} className="hidden h-auto w-50 md:block xl:hidden" />
         <Image
           alt=""
