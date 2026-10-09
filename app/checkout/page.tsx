@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { isCardPaymentConfigured } from '@/lib/paystack';
 import Checkout from '@/ui/checkout/checkout';
 
 export const metadata: Metadata = {
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 const Page = () => {
   return (
     <div>
-      <Checkout />
+      <Checkout cardAvailable={isCardPaymentConfigured()} />
     </div>
   );
 };

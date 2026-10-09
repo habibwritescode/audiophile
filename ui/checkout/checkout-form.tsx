@@ -6,6 +6,7 @@ import RadioInput from '../inputs/radio-input';
 import {
   CheckoutErrors,
   CheckoutField,
+  CheckoutSubmission,
   PaymentMethod,
   initialCheckoutValues,
   validateCheckout,
@@ -17,32 +18,37 @@ import Image from 'next/image';
 export const CHECKOUT_FORM_ID = 'checkout-form';
 
 type Props = {
-  onSubmit: () => void;
+  onSubmit: (submission: CheckoutSubmission) => void;
+  /** False when the server has no Paystack key: only Cash on Delivery can be used */
+  cardAvailable?: boolean;
+  onPaymentMethodChange?: (method: PaymentMethod) => void;
 };
 
-const CheckoutForm = ({ onSubmit }: Props) => {
+const CheckoutForm = ({ onSubmit, cardAvailable = true, onPaymentMethodChange }: Props) => {
   const [values, setValues] = useState(initialCheckoutValues);
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('e-money');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    cardAvailable ? 'card' : 'cash'
+  );
 
   // Validate on submit, then live after the first attempt so errors clear as the user fixes them
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const nextValues = { ...values, [e.target.name]: e.target.value };
     setValues(nextValues);
-    if (hasSubmitted) setErrors(validateCheckout(nextValues, paymentMethod));
+    if (hasSubmitted) setErrors(validateCheckout(nextValues));
   };
 
   const handlePaymentMethodChange = (method: PaymentMethod) => {
     setPaymentMethod(method);
-    if (hasSubmitted) setErrors(validateCheckout(values, method));
+    onPaymentMethodChange?.(method);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setHasSubmitted(true);
 
-    const nextErrors = validateCheckout(values, paymentMethod);
+    const nextErrors = validateCheckout(values);
     setErrors(nextErrors);
 
     const firstInvalid = Object.keys(nextErrors)[0];
@@ -50,7 +56,14 @@ const CheckoutForm = ({ onSubmit }: Props) => {
       e.currentTarget.querySelector<HTMLInputElement>(`[name="${firstInvalid}"]`)?.focus();
       return;
     }
-    onSubmit();
+    onSubmit({
+      paymentMethod,
+      customer: {
+        name: values.name.trim(),
+        email: values.email.trim(),
+        phone: values.phone.trim(),
+      },
+    });
   };
 
   const fieldProps = (name: CheckoutField) => ({
@@ -130,10 +143,11 @@ const CheckoutForm = ({ onSubmit }: Props) => {
         <div className="mb-8 grid gap-4 md:mb-6">
           <RadioInput
             name="paymentMethod"
-            value="e-money"
-            label="e-Money"
-            checked={paymentMethod === 'e-money'}
-            onChange={() => handlePaymentMethodChange('e-money')}
+            value="card"
+            label="Card"
+            checked={paymentMethod === 'card'}
+            disabled={!cardAvailable}
+            onChange={() => handlePaymentMethodChange('card')}
           />
           <RadioInput
             name="paymentMethod"
@@ -145,23 +159,16 @@ const CheckoutForm = ({ onSubmit }: Props) => {
         </div>
       </div>
 
-      {paymentMethod === 'e-money' ? (
-        <div className="grid gap-6 md:grid-cols-2 md:gap-x-4">
-          <TextInput
-            label="e-Money Number"
-            placeholder="238521993"
-            inputMode="numeric"
-            {...fieldProps('eMoneyNumber')}
-          />
-          <TextInput
-            label="e-Money PIN"
-            placeholder="6891"
-            type="password"
-            inputMode="numeric"
-            autoComplete="off"
-            {...fieldProps('eMoneyPin')}
-          />
-        </div>
+      {!cardAvailable && (
+        <p className="mb-6 text-15 text-black/50">
+          Card payments are unavailable right now. Please choose Cash on Delivery.
+        </p>
+      )}
+      {paymentMethod === 'card' ? (
+        <p className="text-15 text-black/50">
+          After you press Continue & Pay, you’ll enter your card details in Paystack’s secure
+          window. Cards are charged in naira.
+        </p>
       ) : (
         <div className="mt-6 flex items-center gap-8 md:mt-7.5">
           <Image src={cashOnDeliveryIcon} alt="" className="shrink-0" />

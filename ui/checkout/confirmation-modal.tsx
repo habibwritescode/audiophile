@@ -13,9 +13,11 @@ type Props = {
   onBackToHome: () => void;
   items: CartLine[];
   grandTotal: number;
+  /** Card orders: what Paystack actually charged, in naira */
+  chargedNaira?: string;
 };
 
-const ConfirmationModal = ({ isOpen, onBackToHome, items, grandTotal }: Props) => {
+const ConfirmationModal = ({ isOpen, onBackToHome, items, grandTotal, chargedNaira }: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const visibleItems = isExpanded ? items : items.slice(0, 1);
@@ -63,6 +65,9 @@ const ConfirmationModal = ({ isOpen, onBackToHome, items, grandTotal }: Props) =
             <div className="flex flex-col justify-end bg-black px-6 pt-4 pb-5 md:pb-10.5">
               <p className="mb-2 text-15 text-white/50 uppercase">Grand Total</p>
               <p className="text-18 tracking-normal text-white">{formatAmount(grandTotal)}</p>
+              {chargedNaira && (
+                <p className="mt-2 text-15 text-white/50">Paid {chargedNaira} by card</p>
+              )}
             </div>
           </div>
 

@@ -4,16 +4,35 @@ import CartItem from '../cart/cart-item';
 import Button from '../button';
 import { CHECKOUT_FORM_ID } from './checkout-form';
 
+const busyLabels = {
+  checking: 'Checking your cart…',
+  paying: 'Waiting for payment…',
+  confirming: 'Confirming payment…',
+};
+
 type Props = {
   items: CartLine[];
   total: number;
   shipping: number;
   vat: number;
   grandTotal: number;
-  isChecking: boolean;
+  busy: 'checking' | 'paying' | 'confirming' | null;
+  /** A card payment we couldn't confirm yet: the button re-checks it instead of paying again */
+  awaitingConfirmation?: boolean;
+  /** For card payments: the naira amount Paystack will charge */
+  chargeNotice?: string;
 };
 
-const CheckoutSummary = ({ items, total, shipping, vat, grandTotal, isChecking }: Props) => {
+const CheckoutSummary = ({
+  items,
+  total,
+  shipping,
+  vat,
+  grandTotal,
+  busy,
+  chargeNotice,
+  awaitingConfirmation,
+}: Props) => {
   const summaryAmounts = [
     { title: 'Total', value: total },
     { title: 'Shipping', value: shipping },
@@ -50,8 +69,10 @@ const CheckoutSummary = ({ items, total, shipping, vat, grandTotal, isChecking }
         <p className="text-18 tracking-normal text-primary">{formatAmount(grandTotal)}</p>
       </div>
 
-      <Button fullWidth type="submit" form={CHECKOUT_FORM_ID} disabled={isChecking}>
-        {isChecking ? 'Checking your cart…' : 'Continue & Pay'}
+      {chargeNotice && <p className="mb-4 text-15 text-black/50">{chargeNotice}</p>}
+
+      <Button fullWidth type="submit" form={CHECKOUT_FORM_ID} disabled={busy !== null}>
+        {busy ? busyLabels[busy] : awaitingConfirmation ? 'Check payment again' : 'Continue & Pay'}
       </Button>
     </div>
   );

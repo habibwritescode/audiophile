@@ -4,11 +4,11 @@ import { describe, expect, it, vi } from 'vitest';
 import CheckoutForm, { CHECKOUT_FORM_ID } from './checkout-form';
 
 // The page's submit button lives in the order summary, outside the form, linked by `form`
-const renderForm = () => {
+const renderForm = ({ cardAvailable = true } = {}) => {
   const onSubmit = vi.fn();
   render(
     <>
-      <CheckoutForm onSubmit={onSubmit} />
+      <CheckoutForm onSubmit={onSubmit} cardAvailable={cardAvailable} />
       <button type="submit" form={CHECKOUT_FORM_ID}>
         Continue & Pay
       </button>
@@ -37,7 +37,7 @@ describe('CheckoutForm', () => {
     await submit(user);
 
     expect(screen.getByLabelText('Name')).toHaveAccessibleDescription('Can’t be empty');
-    expect(screen.getByLabelText('e-Money PIN')).toHaveAccessibleDescription('Can’t be empty');
+    expect(screen.getByLabelText('Country')).toHaveAccessibleDescription('Can’t be empty');
     expect(screen.getByLabelText('Name')).toHaveFocus();
     expect(onSubmit).not.toHaveBeenCalled();
   });
@@ -53,26 +53,38 @@ describe('CheckoutForm', () => {
     expect(screen.getByLabelText('Email Address')).not.toHaveAccessibleDescription();
   });
 
-  it('submits once when every field is valid', async () => {
+  it('submits the card method and the customer details when every field is valid', async () => {
     const { onSubmit, user } = renderForm();
 
     await fillShared(user);
-    await user.type(screen.getByLabelText('e-Money Number'), '238521993');
-    await user.type(screen.getByLabelText('e-Money PIN'), '6891');
     await submit(user);
 
     expect(onSubmit).toHaveBeenCalledOnce();
+    expect(onSubmit).toHaveBeenCalledWith({
+      paymentMethod: 'card',
+      customer: { name: 'Alexei Ward', email: 'alexei@mail.com', phone: '+1 202-555-0136' },
+    });
   });
 
-  it('hides the e-Money fields for cash on delivery and submits without them', async () => {
+  it('explains the Paystack window for card, and the cash message for Cash on Delivery', async () => {
     const { onSubmit, user } = renderForm();
+    expect(screen.getByText(/Paystack’s secure window/)).toBeInTheDocument();
 
     await user.click(screen.getByLabelText('Cash on Delivery'));
-    expect(screen.queryByLabelText('e-Money Number')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Paystack’s secure window/)).not.toBeInTheDocument();
+    expect(screen.getByText(/pay in cash when our delivery courier arrives/)).toBeInTheDocument();
 
     await fillShared(user);
     await submit(user);
 
-    expect(onSubmit).toHaveBeenCalledOnce();
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ paymentMethod: 'cash' }));
+  });
+
+  it('offers only Cash on Delivery when card payments are unavailable', () => {
+    renderForm({ cardAvailable: false });
+
+    expect(screen.getByLabelText('Card')).toBeDisabled();
+    expect(screen.getByLabelText('Cash on Delivery')).toBeChecked();
+    expect(screen.getByText(/Card payments are unavailable/)).toBeInTheDocument();
   });
 });
