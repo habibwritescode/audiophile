@@ -14,7 +14,7 @@ export const parseCartRequest = (input: unknown): CartCheckRequest => {
     throw new InvalidCartError(`Cart can have at most ${MAX_CART_LINES} lines`);
   }
 
-  return input.map((line, index) => {
+  const lines = input.map((line, index) => {
     const { slug, quantity } = (line ?? {}) as Record<string, unknown>;
     if (typeof slug !== 'string' || !slug.trim() || slug.length > 100) {
       throw new InvalidCartError(`Line ${index + 1}: invalid product`);
@@ -27,6 +27,16 @@ export const parseCartRequest = (input: unknown): CartCheckRequest => {
       throw new InvalidCartError(`Line ${index + 1}: quantity must be 1–${MAX_QUANTITY}`);
     }
     return { slug, quantity: quantity as number };
+  });
+
+  // A product listed twice is checked as one line, or each half could pass the stock check alone
+  const merged = new Map<string, number>();
+  for (const { slug, quantity } of lines) merged.set(slug, (merged.get(slug) ?? 0) + quantity);
+  return [...merged].map(([slug, quantity]) => {
+    if (quantity > MAX_QUANTITY) {
+      throw new InvalidCartError(`${slug}: quantity must be 1–${MAX_QUANTITY}`);
+    }
+    return { slug, quantity };
   });
 };
 

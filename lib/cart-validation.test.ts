@@ -6,6 +6,24 @@ import { db } from './db';
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
 describe('parseCartRequest', () => {
+  it('merges a product listed twice', () => {
+    expect(
+      parseCartRequest([
+        { slug: 'zx9-speaker', quantity: 2 },
+        { slug: 'zx9-speaker', quantity: 3 },
+      ])
+    ).toEqual([{ slug: 'zx9-speaker', quantity: 5 }]);
+  });
+
+  it('rejects merged quantities above 99', () => {
+    expect(() =>
+      parseCartRequest([
+        { slug: 'zx9-speaker', quantity: 60 },
+        { slug: 'zx9-speaker', quantity: 60 },
+      ])
+    ).toThrow(InvalidCartError);
+  });
+
   it('accepts a well-formed cart', () => {
     expect(parseCartRequest([{ slug: 'zx9-speaker', quantity: 2 }])).toEqual([
       { slug: 'zx9-speaker', quantity: 2 },
