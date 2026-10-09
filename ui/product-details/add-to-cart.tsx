@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { CartLine, useCartStore } from '@/lib/cart-store';
+import { useHydrated } from '@/lib/use-hydrated';
 import Button from '@/ui/button';
 import QuantitySelector from '@/ui/quantity-selector';
 
@@ -16,6 +17,8 @@ const AddToCart = ({ product }: Props) => {
   const [added, setAdded] = useState(false);
   const resetTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const add = useCartStore((state) => state.add);
+  // Disabled in the server HTML: a click before the page's JavaScript runs would be lost
+  const ready = useHydrated();
 
   useEffect(() => () => clearTimeout(resetTimer.current), []);
 
@@ -28,8 +31,8 @@ const AddToCart = ({ product }: Props) => {
 
   return (
     <div className="flex gap-4">
-      <QuantitySelector value={qtyToAdd} handleChange={setQtyToAdd} />
-      <Button onClick={handleAddToCart} className="min-w-40">
+      <QuantitySelector value={qtyToAdd} handleChange={setQtyToAdd} disabled={!ready} />
+      <Button onClick={handleAddToCart} className="min-w-40" disabled={!ready}>
         {added ? 'Added' : 'Add To Cart'}
       </Button>
       <span role="status" className="sr-only">

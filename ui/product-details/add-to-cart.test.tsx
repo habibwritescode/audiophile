@@ -1,4 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useCartStore } from '@/lib/cart-store';
@@ -69,5 +70,21 @@ describe('AddToCart', () => {
     await user.click(screen.getByRole('button', { name: 'Added' }));
 
     expect(lines()[0].quantity).toBe(2);
+  });
+
+  it('is disabled in the server HTML, so clicks before the page is ready are not lost', () => {
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(<AddToCart product={zx9} />);
+
+    const buttons = [...container.querySelectorAll('button')];
+    expect(buttons.map((button) => button.textContent)).toEqual(['-', '+', 'Add To Cart']);
+    expect(buttons.every((button) => button.disabled)).toBe(true);
+  });
+
+  it('is enabled once running in the browser', () => {
+    render(<AddToCart product={zx9} />);
+
+    expect(screen.getByRole('button', { name: 'Add To Cart' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Increase quantity' })).toBeEnabled();
   });
 });
