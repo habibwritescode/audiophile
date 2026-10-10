@@ -61,7 +61,8 @@ describe.skipIf(!hasDatabase)('products from the database', () => {
     try {
       await seedProducts(db);
 
-      expect(await db.product.count()).toBe(6);
+      // Only the seeded products: other test files may create temporary ones in parallel
+      expect(await db.product.count({ where: { slug: { in: data.map((p) => p.slug) } } })).toBe(6);
       expect(await db.relatedProduct.count()).toBe(18);
       expect((await getProduct('zx7-speaker'))?.stock).toBe(4);
     } finally {

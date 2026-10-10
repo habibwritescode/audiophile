@@ -22,6 +22,9 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    // Every test file shares one database (audiophile_test). Run files one at a time, so a test
+    // that changes stock or adds rows can't break another file's assertions mid-run.
+    fileParallelism: false,
     setupFiles: ['./vitest.setup.ts'],
     globalSetup: ['./vitest.global-setup.ts'],
   },
