@@ -1,7 +1,12 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { confirmCardPayment, startCardPayment, validateCart } from '@/app/checkout/actions';
+import {
+  confirmCardPayment,
+  placeCashOrder,
+  startCardPayment,
+  validateCart,
+} from '@/app/checkout/actions';
 import { CartCheckLine } from '@/lib/cart-check';
 import { useCartStore } from '@/lib/cart-store';
 import Checkout, {
@@ -9,7 +14,10 @@ import Checkout, {
   MAX_CHECK_ATTEMPTS,
   PAYMENT_CANCELLED_MESSAGE,
   PAYMENT_FAILED_MESSAGE,
+  ORDER_FAILED_MESSAGE,
   PAYMENT_TOO_LARGE_MESSAGE,
+  RATE_LIMITED_MESSAGE,
+  paymentRefundedMessage,
   paymentUnconfirmedMessage,
 } from './checkout';
 
@@ -18,6 +26,7 @@ vi.mock('@/app/checkout/actions', () => ({
   validateCart: vi.fn(),
   startCardPayment: vi.fn(),
   confirmCardPayment: vi.fn(),
+  placeCashOrder: vi.fn(),
 }));
 
 // Paystack's popup: each test decides what the shopper does in it
@@ -57,6 +66,33 @@ const inStock = (available = 10, overrides = {}): CartCheckLine[] => [
 const checkMock = vi.mocked(validateCart);
 const startMock = vi.mocked(startCardPayment);
 const confirmMock = vi.mocked(confirmCardPayment);
+const cashMock = vi.mocked(placeCashOrder);
+
+/** An order as the server returns it after placing */
+const storedOrder = (overrides = {}) => ({
+  id: '3f6a2b1e-0000-4000-8000-000000000001',
+  number: 'AUD-000042',
+  status: 'PLACED' as const,
+  paymentMethod: 'CASH' as const,
+  items: [{ ...xx59, quantity: 1 }],
+  grandTotalCents: 94900,
+  chargedKobo: null,
+  ...overrides,
+});
+const placedCardOrder = {
+  outcome: 'placed' as const,
+  order: storedOrder({ paymentMethod: 'CARD' as const, chargedKobo: 151840000 }),
+};
+
+const fullCustomer = {
+  name: 'Alexei Ward',
+  email: 'alexei@mail.com',
+  phone: '+1 202-555-0136',
+  address: '1137 Williams Avenue',
+  zip: '10001',
+  city: 'New York',
+  country: 'United States',
+};
 
 const renderWithCart = async (quantity: number, { cardAvailable = true } = {}) => {
   useCartStore.setState({ lines: quantity ? [{ ...xx59, quantity }] : [] });
@@ -86,6 +122,7 @@ beforeEach(() => {
   checkMock.mockReset();
   startMock.mockReset();
   confirmMock.mockReset();
+  cashMock.mockReset();
   popup.resume.mockReset();
   popup.outcome = 'success';
 });
@@ -119,22 +156,30 @@ describe('Checkout', () => {
     expect(screen.getByRole('heading', { name: 'Your cart is empty' })).toBeInTheDocument();
   });
 
-  it('confirms a Cash on Delivery order that is still valid, emptying the cart at once', async () => {
+  it('places a Cash on Delivery order on the server and shows its number, emptying the cart', async () => {
     checkMock.mockResolvedValue(inStock());
+    cashMock.mockResolvedValue({ status: 'placed', order: storedOrder() });
     const user = await renderWithCart(1);
 
     await fillAndPay(user);
 
-    expect(checkMock).toHaveBeenCalledTimes(2);
+    expect(cashMock).toHaveBeenCalledWith({
+      lines: [{ slug: 'xx59-headphones', quantity: 1 }],
+      customer: fullCustomer,
+      displayedTotalCents: 94900,
+    });
     expect(screen.getByRole('heading', { name: /thank you/i })).toBeInTheDocument();
+    expect(screen.getByText('AUD-000042')).toBeInTheDocument();
     expect(useCartStore.getState().lines).toEqual([]);
     expect(startMock).not.toHaveBeenCalled();
   });
 
   it('stops at the summary when the cart changed while the form was filled in', async () => {
-    checkMock
-      .mockResolvedValueOnce(inStock())
-      .mockResolvedValueOnce(inStock(10, { priceCents: 94900 }));
+    checkMock.mockResolvedValue(inStock());
+    cashMock.mockResolvedValue({
+      status: 'cart-changed',
+      check: inStock(10, { priceCents: 94900 }),
+    });
     const user = await renderWithCart(1);
 
     await fillAndPay(user);
@@ -145,13 +190,14 @@ describe('Checkout', () => {
     expect(screen.getByText('$999')).toBeInTheDocument();
   });
 
-  it('asks to try again when the check fails, without changing the cart', async () => {
-    checkMock.mockResolvedValueOnce(inStock()).mockRejectedValueOnce(new Error('offline'));
+  it('asks to try again when placing the order fails, without changing the cart', async () => {
+    checkMock.mockResolvedValue(inStock());
+    cashMock.mockRejectedValue(new Error('offline'));
     const user = await renderWithCart(3);
 
     await fillAndPay(user);
 
-    expect(screen.getByRole('alert')).toHaveTextContent(CHECK_FAILED_MESSAGE);
+    expect(screen.getByRole('alert')).toHaveTextContent(ORDER_FAILED_MESSAGE);
     expect(screen.queryByRole('heading', { name: /thank you/i })).not.toBeInTheDocument();
     expect(useCartStore.getState().lines[0].quantity).toBe(3);
   });
@@ -187,9 +233,11 @@ describe('Checkout', () => {
   });
 
   it('moves focus to the update when the submit-time check changes the cart', async () => {
-    checkMock
-      .mockResolvedValueOnce(inStock())
-      .mockResolvedValueOnce(inStock(10, { priceCents: 94900 }));
+    checkMock.mockResolvedValue(inStock());
+    cashMock.mockResolvedValue({
+      status: 'cart-changed',
+      check: inStock(10, { priceCents: 94900 }),
+    });
     const user = await renderWithCart(1);
 
     await fillAndPay(user);
@@ -229,20 +277,21 @@ describe('Checkout card payments', () => {
 
   it('pays in the popup, confirms with the server, then empties the cart', async () => {
     startMock.mockResolvedValue(ready);
-    confirmMock.mockResolvedValue({ paid: true });
+    confirmMock.mockResolvedValue(placedCardOrder);
     const user = await renderWithCart(1);
 
     await fillAndPay(user, 'Card');
 
     expect(startMock).toHaveBeenCalledWith({
       lines: [{ slug: 'xx59-headphones', quantity: 1 }],
-      customer: { name: 'Alexei Ward', email: 'alexei@mail.com', phone: '+1 202-555-0136' },
+      customer: fullCustomer,
       displayedTotalCents: 94900,
     });
     expect(popup.resume).toHaveBeenCalledWith('access-code');
     expect(confirmMock).toHaveBeenCalledWith('audiophile-ref');
     expect(screen.getByRole('heading', { name: /thank you/i })).toBeInTheDocument();
     expect(screen.getByText('Paid ₦1,518,400 by card')).toBeInTheDocument();
+    expect(screen.getByText('AUD-000042')).toBeInTheDocument();
     expect(useCartStore.getState().lines).toEqual([]);
   });
 
@@ -261,7 +310,7 @@ describe('Checkout card payments', () => {
 
   it('does not confirm, or offer to pay again, when the server cannot verify the payment', async () => {
     startMock.mockResolvedValue(ready);
-    confirmMock.mockResolvedValue({ paid: false });
+    confirmMock.mockResolvedValue({ outcome: 'not-paid' });
     const user = await renderWithCart(1);
 
     await fillAndPay(user, 'Card');
@@ -277,7 +326,7 @@ describe('Checkout card payments', () => {
 
   it('re-checks the same payment instead of starting a new one, and confirms once it settles', async () => {
     startMock.mockResolvedValue(ready);
-    confirmMock.mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce({ paid: true });
+    confirmMock.mockRejectedValueOnce(new Error('network')).mockResolvedValueOnce(placedCardOrder);
     const user = await renderWithCart(1);
 
     await fillAndPay(user, 'Card');
@@ -348,6 +397,44 @@ describe('Checkout card payments', () => {
     await fillAndPay(user, 'Card');
 
     expect(screen.getByRole('alert')).toHaveTextContent(PAYMENT_FAILED_MESSAGE);
+  });
+
+  it('explains the refund when an item sold out while the shopper was paying', async () => {
+    startMock.mockResolvedValue(ready);
+    confirmMock.mockResolvedValue({
+      outcome: 'refunding',
+      refundRequested: true,
+      order: storedOrder({ status: 'REFUND_PENDING', paymentMethod: 'CARD' }),
+    });
+    const user = await renderWithCart(1);
+
+    await fillAndPay(user, 'Card');
+
+    expect(screen.getByRole('alert')).toHaveTextContent(paymentRefundedMessage('AUD-000042'));
+    expect(screen.queryByRole('heading', { name: /thank you/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Check payment again' })).not.toBeInTheDocument();
+    // The charge is being refunded, so this cart can't be paid for again by mistake
+    expect(useCartStore.getState().lines).toEqual([]);
+  });
+
+  it('asks the shopper to wait when payment attempts are rate-limited', async () => {
+    startMock.mockResolvedValue({ status: 'rate-limited' });
+    const user = await renderWithCart(1);
+
+    await fillAndPay(user, 'Card');
+
+    expect(screen.getByRole('alert')).toHaveTextContent(RATE_LIMITED_MESSAGE);
+    expect(popup.resume).not.toHaveBeenCalled();
+    expect(useCartStore.getState().lines).toHaveLength(1);
+  });
+
+  it('applies the rate limit to cash orders too', async () => {
+    cashMock.mockResolvedValue({ status: 'rate-limited' });
+    const user = await renderWithCart(1);
+
+    await fillAndPay(user);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(RATE_LIMITED_MESSAGE);
   });
 
   it('offers only Cash on Delivery when card payments are not configured', async () => {

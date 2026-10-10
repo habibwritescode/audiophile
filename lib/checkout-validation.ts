@@ -14,10 +14,10 @@ export type CheckoutValues = typeof initialCheckoutValues;
 export type CheckoutField = keyof CheckoutValues;
 export type CheckoutErrors = Partial<Record<CheckoutField, string>>;
 
-/** What the checkout needs from the form to take payment */
+/** What the checkout needs from the form to place the order */
 export type CheckoutSubmission = {
   paymentMethod: PaymentMethod;
-  customer: Pick<CheckoutValues, 'name' | 'email' | 'phone'>;
+  customer: CheckoutValues;
 };
 
 const formatRules: Partial<Record<CheckoutField, RegExp>> = {

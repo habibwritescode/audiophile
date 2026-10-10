@@ -6,6 +6,7 @@ import { CHECKOUT_FORM_ID } from './checkout-form';
 
 const busyLabels = {
   checking: 'Checking your cart…',
+  placing: 'Placing your order…',
   paying: 'Waiting for payment…',
   confirming: 'Confirming payment…',
 };
@@ -16,7 +17,7 @@ type Props = {
   shipping: number;
   vat: number;
   grandTotal: number;
-  busy: 'checking' | 'paying' | 'confirming' | null;
+  busy: keyof typeof busyLabels | null;
   /** A card payment we couldn't confirm yet: the button re-checks it instead of paying again */
   awaitingConfirmation?: boolean;
   /** For card payments: the naira amount Paystack will charge */

@@ -15,9 +15,18 @@ type Props = {
   grandTotal: number;
   /** Card orders: what Paystack actually charged, in naira */
   chargedNaira?: string;
+  /** The stored order's number, e.g. AUD-000123 */
+  orderNumber: string;
 };
 
-const ConfirmationModal = ({ isOpen, onBackToHome, items, grandTotal, chargedNaira }: Props) => {
+const ConfirmationModal = ({
+  isOpen,
+  onBackToHome,
+  items,
+  grandTotal,
+  chargedNaira,
+  orderNumber,
+}: Props) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const visibleItems = isExpanded ? items : items.slice(0, 1);
@@ -33,7 +42,7 @@ const ConfirmationModal = ({ isOpen, onBackToHome, items, grandTotal, chargedNai
             THANK YOU <br /> FOR YOUR ORDER
           </h3>
           <p className="mb-6 text-15 text-black/50 md:mb-8">
-            You will receive an email confirmation shortly.
+            Your order number is <span className="font-bold text-black">{orderNumber}</span>.
           </p>
 
           <div className="mb-6 grid overflow-hidden rounded-lg md:mb-12 md:grid-cols-[1fr_40%]">

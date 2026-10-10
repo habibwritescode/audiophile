@@ -62,7 +62,15 @@ describe('CheckoutForm', () => {
     expect(onSubmit).toHaveBeenCalledOnce();
     expect(onSubmit).toHaveBeenCalledWith({
       paymentMethod: 'card',
-      customer: { name: 'Alexei Ward', email: 'alexei@mail.com', phone: '+1 202-555-0136' },
+      customer: {
+        name: 'Alexei Ward',
+        email: 'alexei@mail.com',
+        phone: '+1 202-555-0136',
+        address: '1137 Williams Avenue',
+        zip: '10001',
+        city: 'New York',
+        country: 'United States',
+      },
     });
   });
 

@@ -1,4 +1,5 @@
 import 'server-only';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 
 const API_URL = 'https://api.paystack.co';
 
@@ -25,6 +26,18 @@ const secretKey = () => {
     throw new PaystackConfigError('Only Paystack test keys (sk_test_…) are allowed');
   }
   return key;
+};
+
+/**
+ * Paystack signs every webhook: an HMAC-SHA512 of the raw request body, keyed with the secret key,
+ * in the x-paystack-signature header. Compared in constant time so the check can't leak it.
+ */
+export const isValidWebhookSignature = (rawBody: string, signature: string | null) => {
+  if (!signature) return false;
+  const expected = createHmac('sha512', secretKey()).update(rawBody).digest('hex');
+  const given = Buffer.from(signature, 'utf8');
+  const wanted = Buffer.from(expected, 'utf8');
+  return given.length === wanted.length && timingSafeEqual(given, wanted);
 };
 
 export const isCardPaymentConfigured = () => {
@@ -91,6 +104,10 @@ export type VerifiedTransaction = {
 export type PaystackClient = {
   initialize: (params: InitializeParams) => Promise<{ accessCode: string; reference: string }>;
   verify: (reference: string) => Promise<VerifiedTransaction>;
+  /** Full refund of a transaction; Paystack reports progress through refund.* webhooks */
+  refund: (reference: string) => Promise<{ status: string }>;
+  /** Whether Paystack has any refund on record for the transaction */
+  hasRefund: (reference: string) => Promise<boolean>;
 };
 
 export const paystack: PaystackClient = {
@@ -116,5 +133,22 @@ export const paystack: PaystackClient = {
       currency: data.currency,
       metadata: data.metadata,
     };
+  },
+
+  hasRefund: async (reference) => {
+    // Paystack lists refunds by its numeric transaction id, which verify returns
+    const { id } = await request<{ id: number }>(
+      `/transaction/verify/${encodeURIComponent(reference)}`
+    );
+    const refunds = await request<unknown[]>(`/refund?transaction=${id}`);
+    return refunds.length > 0;
+  },
+
+  refund: async (reference) => {
+    const data = await request<{ status: string }>('/refund', {
+      method: 'POST',
+      body: JSON.stringify({ transaction: reference }),
+    });
+    return { status: data.status };
   },
 };

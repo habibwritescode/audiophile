@@ -1,7 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { confirmCardPayment, startCardPayment, validateCart } from '@/app/checkout/actions';
+import {
+  confirmCardPayment,
+  placeCashOrder,
+  startCardPayment,
+  validateCart,
+} from '@/app/checkout/actions';
 import { CartLine, useCartHydrated, useCartStore } from '@/lib/cart-store';
 import { CheckoutSubmission, PaymentMethod } from '@/lib/checkout-validation';
 import { formatNaira, orderTotals, toChargeKobo } from '@/lib/pricing';
@@ -20,6 +25,11 @@ export const paymentUnconfirmedMessage = (reference: string) =>
   `We couldn’t confirm your payment yet. Please don’t pay again: check again below, or if you were charged, contact us with reference ${reference}.`;
 export const PAYMENT_TOO_LARGE_MESSAGE =
   'This order is too large to pay by card online. Lower the quantities or choose Cash on Delivery.';
+export const ORDER_FAILED_MESSAGE = 'We couldn’t place your order, please try again.';
+/** Charged, but an item sold out (or the amount didn't match) before the order could be placed */
+export const paymentRefundedMessage = (orderNumber: string) =>
+  `Sorry, an item sold out while you were paying, so we couldn’t place order ${orderNumber}. We’re refunding your payment, so you don’t need to do anything. If it hasn’t reached you within 10 business days, contact us with that order number.`;
+export const RATE_LIMITED_MESSAGE = 'Too many attempts. Please wait a few minutes and try again.';
 export const CARD_UNAVAILABLE_MESSAGE =
   'Card payments are unavailable right now. Please choose Cash on Delivery.';
 
@@ -27,9 +37,9 @@ export const CARD_UNAVAILABLE_MESSAGE =
 export const MAX_CHECK_ATTEMPTS = 3;
 
 type CheckResult = { ok: boolean; messages: string[] };
-type Busy = 'checking' | 'paying' | 'confirming' | null;
-type ConfirmedOrder = { lines: CartLine[]; chargedKobo?: number };
-type PendingPayment = { reference: string; lines: CartLine[]; amountKobo: number };
+type Busy = 'checking' | 'placing' | 'paying' | 'confirming' | null;
+type ConfirmedOrder = { number: string; lines: CartLine[]; chargedKobo: number | null };
+type PendingPayment = { reference: string };
 
 const cartRequest = (lines: CartLine[]) => lines.map(({ slug, quantity }) => ({ slug, quantity }));
 
@@ -72,6 +82,7 @@ const Checkout = ({ cardAvailable }: Props) => {
   const hydrated = useCartHydrated();
   const lines = useCartStore((state) => state.lines);
   const clearCart = useCartStore((state) => state.clear);
+  const applyServerCheck = useCartStore((state) => state.applyServerCheck);
 
   const [messages, setMessages] = useState<string[]>([]);
   const [error, setError] = useState('');
@@ -118,9 +129,36 @@ const Checkout = ({ cardAvailable }: Props) => {
     setRevealNotices(true);
   };
 
-  const payByCash = async () => {
-    if (await runCheck()) completeOrder({ lines: useCartStore.getState().lines });
-    else setRevealNotices(true);
+  /** Applies a server answer that the cart changed: corrections and messages, as a cart check */
+  const applyCartChanged = (check: Parameters<typeof applyServerCheck>[0]) => {
+    const corrections = applyServerCheck(check);
+    if (corrections.length) {
+      setMessages(corrections);
+      setRevealNotices(true);
+    } else {
+      fail(CHECK_FAILED_MESSAGE);
+    }
+  };
+
+  const payByCash = async (customer: CheckoutSubmission['customer']) => {
+    const ordered = useCartStore.getState().lines;
+    setBusy('placing');
+    setError('');
+    setMessages([]);
+    try {
+      const result = await placeCashOrder({
+        lines: cartRequest(ordered),
+        customer,
+        displayedTotalCents: orderTotals(ordered).grandTotal,
+      });
+      if (result.status === 'rate-limited') return fail(RATE_LIMITED_MESSAGE);
+      if (result.status === 'cart-changed') return applyCartChanged(result.check);
+      completeOrder({ number: result.order.number, lines: result.order.items, chargedKobo: null });
+    } catch {
+      fail(ORDER_FAILED_MESSAGE);
+    } finally {
+      setBusy(null);
+    }
   };
 
   /**
@@ -131,10 +169,21 @@ const Checkout = ({ cardAvailable }: Props) => {
     setBusy('confirming');
     setError('');
     try {
-      const { paid } = await confirmCardPayment(pending.reference);
-      if (paid) {
+      const result = await confirmCardPayment(pending.reference);
+      if (result.outcome === 'placed') {
         setUnconfirmed(null);
-        completeOrder({ lines: pending.lines, chargedKobo: pending.amountKobo });
+        completeOrder({
+          number: result.order.number,
+          lines: result.order.items,
+          chargedKobo: result.order.chargedKobo,
+        });
+        return;
+      }
+      if (result.outcome === 'refunding') {
+        // Charged but not fulfillable: the server already asked Paystack for a refund
+        setUnconfirmed(null);
+        clearCart();
+        fail(paymentRefundedMessage(result.order.number));
         return;
       }
     } catch {
@@ -158,26 +207,14 @@ const Checkout = ({ cardAvailable }: Props) => {
         displayedTotalCents: orderTotals(ordered).grandTotal,
       });
 
-      if (started.status === 'cart-changed') {
-        const corrections = useCartStore.getState().applyServerCheck(started.check);
-        if (corrections.length) {
-          setMessages(corrections);
-          setRevealNotices(true);
-        } else {
-          fail(CHECK_FAILED_MESSAGE);
-        }
-        return;
-      }
+      if (started.status === 'rate-limited') return fail(RATE_LIMITED_MESSAGE);
+      if (started.status === 'cart-changed') return applyCartChanged(started.check);
       if (started.status === 'too-large') return fail(PAYMENT_TOO_LARGE_MESSAGE);
       if (started.status === 'unavailable') return fail(CARD_UNAVAILABLE_MESSAGE);
 
       const outcome = await payInPopup(started.accessCode);
       if (outcome.result === 'success') {
-        await confirmPayment({
-          reference: outcome.reference,
-          lines: ordered,
-          amountKobo: started.amountKobo,
-        });
+        await confirmPayment({ reference: outcome.reference });
         return;
       }
       fail(outcome.result === 'cancel' ? PAYMENT_CANCELLED_MESSAGE : PAYMENT_FAILED_MESSAGE);
@@ -192,7 +229,7 @@ const Checkout = ({ cardAvailable }: Props) => {
     if (busy) return;
     if (unconfirmed) await confirmPayment(unconfirmed);
     else if (paymentMethod === 'card') await payByCard(customer);
-    else await payByCash();
+    else await payByCash(customer);
   };
 
   // A failed submit must be noticed: on small screens the summary sits below the long form.
@@ -288,6 +325,7 @@ const Checkout = ({ cardAvailable }: Props) => {
         isOpen={confirmedOrder !== null}
         onBackToHome={clearCart}
         items={confirmed}
+        orderNumber={confirmedOrder?.number ?? ''}
         grandTotal={orderTotals(confirmed).grandTotal}
         chargedNaira={
           confirmedOrder?.chargedKobo ? formatNaira(confirmedOrder.chargedKobo) : undefined

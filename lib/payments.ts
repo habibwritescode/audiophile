@@ -1,14 +1,25 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { CartCheckLine } from './cart-check';
-import { checkCart, parseCartRequest } from './cart-validation';
-import { isValidEmail } from './checkout-validation';
-import { orderTotals, toChargeKobo } from './pricing';
+import { CartCheckRequest, parseCartRequest } from './cart-validation';
+import { CheckoutValues, initialCheckoutValues, validateCheckout } from './checkout-validation';
+import {
+  CashOrderResult,
+  FulfilResult,
+  createPendingCardOrder,
+  fulfillCardPayment,
+  placeCashOrder as placeCashOrderLogic,
+  quoteOrder,
+} from './orders';
+import { toChargeKobo } from './pricing';
 import { PaystackApiError, PaystackClient, PaystackConfigError, paystack } from './paystack';
 
 // Integration tests tag their transactions, so they're easy to tell apart in the Paystack dashboard
 const REFERENCE_PATTERN =
   /^audiophile-(?:test-)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+export const isPaymentReference = (value: unknown): value is string =>
+  typeof value === 'string' && REFERENCE_PATTERN.test(value);
 
 export class InvalidPaymentRequestError extends Error {}
 
@@ -19,63 +30,62 @@ export type StartCardPaymentResult =
   | { status: 'too-large' }
   | { status: 'unavailable' };
 
-const parseCustomer = (input: unknown) => {
-  const { name, email, phone } = (input ?? {}) as Record<string, unknown>;
-  const text = (value: unknown) =>
-    typeof value === 'string' && value.trim() && value.length <= 200 ? value.trim() : null;
-  const customer = { name: text(name), email: text(email), phone: text(phone) };
-  if (!customer.name || !customer.phone || !customer.email || !isValidEmail(customer.email)) {
+type CheckoutRequest = { lines: unknown; customer: unknown; displayedTotalCents: unknown };
+
+/** The checkout form's fields, checked on the server with the same rules as the browser */
+const parseCustomer = (input: unknown): CheckoutValues => {
+  const raw = (input ?? {}) as Record<string, unknown>;
+  const values = Object.fromEntries(
+    (Object.keys(initialCheckoutValues) as (keyof CheckoutValues)[]).map((field) => {
+      const value = raw[field];
+      return [field, typeof value === 'string' && value.length <= 200 ? value.trim() : ''];
+    })
+  ) as CheckoutValues;
+  if (Object.keys(validateCheckout(values)).length > 0) {
     throw new InvalidPaymentRequestError('Invalid customer details');
   }
-  return customer as { name: string; email: string; phone: string };
+  return values;
 };
 
-/**
- * Creates a Paystack transaction for the cart, charged in naira at the server's price. Nothing is
- * created unless the cart passes the stock check and its total matches what the shopper was shown
- * (`displayedTotalCents`, compared only: the charge always comes from the database).
- */
-export const startCardPayment = async (
-  input: { lines: unknown; customer: unknown; displayedTotalCents: unknown },
-  client: PaystackClient = paystack,
-  { testTransaction = false }: { testTransaction?: boolean } = {}
-): Promise<StartCardPaymentResult> => {
-  const lines = parseCartRequest(input.lines);
+const parseCheckoutRequest = (input: CheckoutRequest) => {
+  const lines: CartCheckRequest = parseCartRequest(input.lines);
   const customer = parseCustomer(input.customer);
   if (!Number.isInteger(input.displayedTotalCents)) {
     throw new InvalidPaymentRequestError('Invalid displayed total');
   }
+  return { lines, customer, displayedTotalCents: input.displayedTotalCents as number };
+};
 
-  const check = await checkCart(lines);
-  const facts = new Map(check.map((fact) => [fact.slug, fact]));
-  const priced = lines.map((line) => {
-    const fact = facts.get(line.slug);
-    return fact?.exists && fact.available >= line.quantity
-      ? { priceCents: fact.priceCents, quantity: line.quantity }
-      : null;
-  });
-  const { grandTotal } = orderTotals(priced.filter((line) => line !== null));
-  if (priced.includes(null) || grandTotal !== input.displayedTotalCents) {
-    return { status: 'cart-changed', check };
+/**
+ * Creates the pending order and its Paystack transaction, charged in naira at the server's price.
+ * Nothing is created unless every line is in stock and the total matches what the shopper was
+ * shown (`displayedTotalCents`, compared only: the charge always comes from the database).
+ */
+export const startCardPayment = async (
+  input: CheckoutRequest,
+  client: PaystackClient = paystack,
+  { testTransaction = false }: { testTransaction?: boolean } = {}
+): Promise<StartCardPaymentResult> => {
+  const { lines, customer, displayedTotalCents } = parseCheckoutRequest(input);
+
+  const quote = await quoteOrder(lines);
+  if (!quote.items || !quote.totals || quote.totals.grandTotal !== displayedTotalCents) {
+    return { status: 'cart-changed', check: quote.check };
   }
 
-  const amountKobo = toChargeKobo(grandTotal);
+  const amountKobo = toChargeKobo(quote.totals.grandTotal);
   const reference = `audiophile-${testTransaction ? 'test-' : ''}${randomUUID()}`;
+  const orderId = randomUUID();
+
+  let accessCode: string;
   try {
-    const { accessCode } = await client.initialize({
+    ({ accessCode } = await client.initialize({
       email: customer.email,
       amount: amountKobo,
       currency: 'NGN',
       reference,
-      // Set by the server, so verification can trust it; `orders` will read the cart from here
-      metadata: {
-        amountKobo,
-        amountCents: grandTotal,
-        cart: lines,
-        customer: { name: customer.name, phone: customer.phone },
-      },
-    });
-    return { status: 'ready', accessCode, reference, amountKobo };
+      metadata: { orderId, amountKobo, cart: lines },
+    }));
   } catch (error) {
     if (error instanceof PaystackConfigError) return { status: 'unavailable' };
     if (error instanceof PaystackApiError) {
@@ -86,39 +96,32 @@ export const startCardPayment = async (
     }
     throw error;
   }
-};
 
-const expectedKobo = (metadata: unknown) => {
-  try {
-    const parsed = typeof metadata === 'string' ? JSON.parse(metadata) : metadata;
-    return (parsed as { amountKobo?: unknown } | null)?.amountKobo;
-  } catch {
-    return undefined; // Unreadable metadata can't prove the amount: treated as not paid, and logged
-  }
+  // Recorded only once Paystack has the transaction, so failed starts leave nothing behind. The
+  // shopper can't pay before this returns, so the webhook always finds the order.
+  await createPendingCardOrder({
+    id: orderId,
+    customer,
+    quote: { ...quote, items: quote.items, totals: quote.totals },
+    reference,
+    amountKobo,
+  });
+  return { status: 'ready', accessCode, reference, amountKobo };
 };
 
 /**
- * The popup's success callback is not proof of payment: ask Paystack, and accept only a successful
- * NGN charge for exactly the amount this server set when it created the transaction.
+ * Called by the browser after the popup reports success, and again by "Check payment again".
+ * Fulfilment verifies the payment with Paystack and places the order at most once.
  */
 export const confirmCardPayment = async (
   reference: unknown,
   client: PaystackClient = paystack
-): Promise<{ paid: boolean }> => {
-  if (typeof reference !== 'string' || !REFERENCE_PATTERN.test(reference)) {
+): Promise<FulfilResult> => {
+  if (!isPaymentReference(reference)) {
     throw new InvalidPaymentRequestError('Invalid payment reference');
   }
-
-  const transaction = await client.verify(reference);
-  const paid =
-    transaction.status === 'success' &&
-    transaction.currency === 'NGN' &&
-    Number.isInteger(transaction.amount) &&
-    transaction.amount === expectedKobo(transaction.metadata);
-
-  if (transaction.status === 'success' && !paid) {
-    // Charged, but not what we asked for: needs a human (refunds are part of `orders`)
-    console.error(`Payment ${reference} succeeded with an unexpected amount or currency`);
-  }
-  return { paid };
+  return fulfillCardPayment(reference, client);
 };
+
+export const placeCashOrder = async (input: CheckoutRequest): Promise<CashOrderResult> =>
+  placeCashOrderLogic(parseCheckoutRequest(input));

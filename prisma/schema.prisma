@@ -42,6 +42,7 @@ model Product {
   includes      Json
   relatedTo     RelatedProduct[] @relation("product")
   relatedFrom   RelatedProduct[] @relation("related")
+  orderItems    OrderItem[]
 
   @@index([category])
 }
@@ -55,4 +56,81 @@ model RelatedProduct {
   related   Product @relation("related", fields: [relatedId], references: [id], onDelete: Cascade)
 
   @@id([productId, relatedId])
+}
+
+enum PaymentMethod {
+  CARD
+  CASH
+}
+
+enum OrderStatus {
+  /// Card: Paystack transaction created, not paid yet. Holds no stock.
+  PENDING_PAYMENT
+  /// Paid by card, or cash order accepted. Stock reduced.
+  PLACED
+  /// Charged but couldn't be fulfilled; refund requested from Paystack
+  REFUND_PENDING
+  /// Paystack reports the refund processed
+  REFUNDED
+  /// Paystack couldn't process the refund: needs a human
+  REFUND_FAILED
+}
+
+model Order {
+  /// Unguessable: used in Server Actions and anywhere an order is referenced from the browser
+  id                String        @id @default(uuid())
+  /// Shown to shoppers as AUD-000123
+  number            Int           @unique @default(autoincrement())
+  status            OrderStatus
+  paymentMethod     PaymentMethod
+  /// Paystack reference (card orders). Unique: one order per payment, however often it's confirmed
+  paymentReference  String?       @unique
+  customerName      String
+  customerEmail     String
+  customerPhone     String
+  address           String
+  zip               String
+  city              String
+  country           String
+  subtotalCents     Int
+  shippingCents     Int
+  vatCents          Int
+  grandTotalCents   Int
+  /// Card orders: the naira amount (kobo) the server set for the payment. Verification requires
+  /// Paystack's charge to equal it; on a placed order it is therefore also what was charged.
+  amountKobo        Int?
+  /// Why a charged order couldn't be placed, e.g. "out of stock after payment"
+  failureReason     String?
+  /// Set once Paystack has accepted the refund request. While null on a REFUND_PENDING order,
+  /// fulfilment (browser re-check, webhook retries) keeps asking for the refund.
+  refundRequestedAt DateTime?
+  createdAt         DateTime      @default(now())
+  placedAt          DateTime?
+  items             OrderItem[]
+
+  @@index([status])
+}
+
+model OrderItem {
+  id             Int     @id @default(autoincrement())
+  orderId        String
+  order          Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      Int
+  product        Product @relation(fields: [productId], references: [id])
+  /// Snapshots: an order shows what was bought, even if the product changes later
+  shortName      String
+  cartImage      String
+  unitPriceCents Int
+  quantity       Int
+
+  @@index([orderId])
+}
+
+/// Fixed-window counters for rate limiting public endpoints
+model RateLimit {
+  key         String
+  windowStart DateTime
+  count       Int
+
+  @@id([key, windowStart])
 }

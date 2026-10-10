@@ -7,6 +7,7 @@ import {
   CheckoutErrors,
   CheckoutField,
   CheckoutSubmission,
+  CheckoutValues,
   PaymentMethod,
   initialCheckoutValues,
   validateCheckout,
@@ -58,11 +59,9 @@ const CheckoutForm = ({ onSubmit, cardAvailable = true, onPaymentMethodChange }:
     }
     onSubmit({
       paymentMethod,
-      customer: {
-        name: values.name.trim(),
-        email: values.email.trim(),
-        phone: values.phone.trim(),
-      },
+      customer: Object.fromEntries(
+        Object.entries(values).map(([field, value]) => [field, value.trim()])
+      ) as CheckoutValues,
     });
   };
 
