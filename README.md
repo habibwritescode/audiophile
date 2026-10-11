@@ -12,7 +12,7 @@ _Recorded on the live site: stock labels, the Add to Cart limit, the cart, and a
 
 ## Where this came from
 
-The design and product data come from the [Audiophile e-commerce challenge](https://www.frontendmentor.io/challenges/audiophile-ecommerce-website-C8cuSd_wx) on Frontend Mentor. The storefront pages (home, categories, products, checkout) follow that brief.
+The design and product data come from the [Audiophile e-commerce challenge](https://www.frontendmentor.io/challenges/audiophile-ecommerce-website-C8cuSd_wx) on Frontend Mentor. The storefront pages (home, categories, products, checkout) follow that brief. Where the design's colours fell short of WCAG AA contrast, they were adjusted: a slightly deeper orange (`#B05C2B` instead of `#D87D4A`) and darker grey body text. The footer's placeholder social links were dropped.
 
 The brief stops at the browser: a checkout form whose "Continue & Pay" shows a thank-you screen with nothing behind it. Built beyond it:
 
