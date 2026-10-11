@@ -7,7 +7,9 @@ import desktopHero from '../../public/assets/home/desktop/image-hero.jpg';
 
 const Hero = () => {
   return (
-    <section className="relative min-h-[calc(100svh-var(--header-height))]">
+    // Dark like the photo (almost black): until it paints, the overlay below would otherwise darken
+    // the white page into a grey block
+    <section className="relative min-h-[calc(100svh-var(--header-height))] bg-neutral-dark">
       <ArtDirectedImage
         mobile={mobileHero}
         tablet={tabletHero}
