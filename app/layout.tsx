@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
 import '@/ui/globals.css';
 import Header from '@/ui/header';
@@ -19,6 +19,13 @@ export const metadata: Metadata = {
   description: 'Audiophile ecommerce app',
 };
 
+// The status bar and browser chrome match the header, which is dark in every colour scheme. The
+// site has no dark mode, so form controls stay light too.
+export const viewport: Viewport = {
+  themeColor: '#101010',
+  colorScheme: 'light',
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -26,9 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`flex min-h-screen flex-col bg-white ${manrope.variable} text-15 antialiased`}
-      >
+      <body className={`flex min-h-svh flex-col bg-white ${manrope.variable} text-15 antialiased`}>
         <CartHydration />
         <Header />
         <main className="flex-grow">{children}</main>

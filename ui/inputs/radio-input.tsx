@@ -8,10 +8,10 @@ const RadioInput = ({ label, name, value, checked, onChange, disabled }: Props) 
   return (
     <label
       className={cn(
-        'flex h-14 cursor-pointer items-center gap-4 rounded-lg border border-[#CFCFCF] px-4 transition-colors hover:border-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary',
+        'flex h-14 cursor-pointer items-center gap-4 rounded-lg border border-[#CFCFCF] px-4 transition-colors select-none hover:border-primary active:border-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary',
         {
           'border-primary': checked,
-          'cursor-not-allowed opacity-50 hover:border-[#CFCFCF]': disabled,
+          'cursor-not-allowed opacity-50 hover:border-[#CFCFCF] active:border-[#CFCFCF]': disabled,
         }
       )}
     >

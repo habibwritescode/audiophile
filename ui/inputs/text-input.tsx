@@ -25,7 +25,7 @@ const TextInput = ({ label, name, type = 'text', errorMessage, ...props }: Props
         aria-invalid={!!errorMessage}
         aria-describedby={errorMessage ? errorId : undefined}
         className={cn(
-          `h-14 rounded-lg border border-[#CFCFCF] pl-6 text-14 font-bold -tracking-[0.25px] caret-primary transition-colors duration-150 outline-none placeholder:text-black/40 focus:border-primary`,
+          `h-14 rounded-lg border border-[#CFCFCF] pl-6 text-14 font-bold -tracking-[0.25px] caret-primary transition-colors duration-150 outline-none placeholder:text-black/40 focus:border-primary pointer-coarse:text-[16px]`,
           {
             'border-2 border-red focus:border-red': errorMessage,
           }

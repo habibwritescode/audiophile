@@ -30,7 +30,7 @@ const Modal = ({
         className="fixed inset-0 top-(--header-height) bg-black/50 transition-opacity duration-200 ease-out data-closed:opacity-0 data-leave:duration-150"
       />
 
-      <div className="fixed inset-0 top-(--header-height) overflow-y-auto">
+      <div className="fixed inset-0 top-(--header-height) overflow-y-auto overscroll-contain">
         {/* The panel must be only the card: Headless UI treats every click inside it as "inside",
             so a full-width panel would swallow clicks on the dimmed space beside the card */}
         <div className={cn('mx-auto max-w-6xl', containerClassName)}>

@@ -97,11 +97,11 @@ const Header = () => {
             aria-expanded={isMenuOpen}
             data-modal-toggle="menu"
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            className="-m-2 p-2 xl:hidden"
+            className="-m-2 p-2 transition-opacity active:opacity-60 xl:hidden"
           >
             <Image src="/assets/shared/tablet/icon-hamburger.svg" width={16} height={15} alt="" />
           </button>
-          <Link href="/">
+          <Link href="/" className="transition-opacity active:opacity-60">
             <Image
               src="/assets/shared/desktop/logo.svg"
               alt="Audiophile home"
@@ -123,7 +123,7 @@ const Header = () => {
             }
             data-modal-toggle="cart"
             onClick={() => setIsCartOpen((prev) => !prev)}
-            className="relative -m-2 p-2 md:ml-auto"
+            className="relative -m-2 p-2 transition-opacity active:opacity-60 md:ml-auto"
           >
             <Image src="/assets/shared/desktop/icon-cart.svg" alt="" width={23} height={20} />
             {itemCount > 0 && (

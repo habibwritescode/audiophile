@@ -64,7 +64,7 @@ const Cart = ({ isOpen, onClose }: Props) => {
         {items.length > 0 && (
           <button
             onClick={clear}
-            className="text-15 text-black/50 underline transition-colors hover:text-primary"
+            className="text-15 text-black/50 underline transition-colors hover:text-primary active:text-primary"
           >
             Remove all
           </button>

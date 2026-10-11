@@ -14,6 +14,22 @@
 }
 
 @layer base {
+  /* Taps fire at once: no wait to see if a second tap is a double-tap zoom (the quantity
+     stepper is tapped in quick succession) */
+  a,
+  button,
+  label,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+
+  /* A long press on a control shouldn't select its label; content text stays selectable */
+  button,
+  [role='button'] {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
   button:not(:disabled),
   [role='button']:not(:disabled) {
     cursor: pointer;

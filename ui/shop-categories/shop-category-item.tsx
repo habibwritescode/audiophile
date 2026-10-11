@@ -15,14 +15,14 @@ const ShopCategoryItem = ({ imgSrc, categoryName, className, onClick }: Props) =
     <Link
       href={`/category/${categoryName.toLowerCase()}`}
       onClick={onClick}
-      className={`group relative flex h-41.25 items-end justify-center rounded-lg bg-gray-100 pb-6 xl:h-51 ${className}`}
+      className={`group relative flex h-41.25 items-end justify-center rounded-lg bg-gray-100 pb-6 transition-[scale] duration-150 ease-out select-none active:scale-[0.98] xl:h-51 ${className}`}
     >
       <Image alt="" src={imgSrc} className="absolute bottom-[55%] h-auto w-35 xl:w-40" />
 
       <div className="grid place-items-center gap-4">
         <p className="text-15 font-bold text-black uppercase">{categoryName}</p>
         <div className="flex items-center gap-3">
-          <p className="text-13 text-black/50 uppercase transition-colors group-hover:text-primary">
+          <p className="text-13 text-black/50 uppercase transition-colors group-hover:text-primary group-active:text-primary">
             Shop
           </p>
 

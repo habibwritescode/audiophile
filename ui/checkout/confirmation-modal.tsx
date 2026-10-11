@@ -97,7 +97,7 @@ const ConfirmationModal = ({
               aria-expanded={isExpanded}
               aria-controls={otherItemsId}
               onClick={() => setIsExpanded((prev) => !prev)}
-              className="mt-3 w-full border-t border-black/10 pt-3 text-12 font-bold text-black/50 transition-colors hover:text-primary"
+              className="mt-3 w-full border-t border-black/10 pt-3 text-12 font-bold text-black/50 transition-colors hover:text-primary active:text-primary"
             >
               {isExpanded
                 ? 'View less'

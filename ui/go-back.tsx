@@ -11,7 +11,7 @@ const GoBack = () => {
   return (
     <button
       onClick={handleClick}
-      className="cursor-pointer text-15 text-black/50 transition-colors hover:text-primary"
+      className="cursor-pointer text-15 text-black/50 transition-colors hover:text-primary active:text-primary"
     >
       Go Back
     </button>

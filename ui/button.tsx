@@ -11,7 +11,7 @@ type StyleProps = {
 
 const buttonClasses = ({ variant = 'primary', fullWidth, disabled }: StyleProps) =>
   cn(
-    'grid h-12 place-items-center px-8 text-13 uppercase transition-[background-color,color,scale] duration-150 ease-out active:scale-[0.97]',
+    'grid h-12 place-items-center px-8 text-13 uppercase select-none transition-[background-color,color,scale] duration-150 ease-out active:scale-[0.97]',
     {
       'bg-primary text-white hover:bg-primary-light': variant === 'primary',
       'border border-black bg-transparent text-black hover:bg-black hover:text-white':

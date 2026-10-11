@@ -245,7 +245,7 @@ const Checkout = ({ cardAvailable }: Props) => {
   }, [revealNotices]);
 
   // Nothing until the stored cart has loaded: a full cart must never flash as empty
-  if (!hydrated) return <div className="min-h-screen bg-gray-200" />;
+  if (!hydrated) return <div className="min-h-svh bg-gray-200" />;
 
   const notices = (messages.length > 0 || error) && (
     <div
