@@ -235,7 +235,11 @@ const Checkout = ({ cardAvailable }: Props) => {
   // Only on submit; the check on arrival shouldn't move the page.
   useEffect(() => {
     if (!revealNotices || !noticesRef.current) return;
-    noticesRef.current.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    noticesRef.current.scrollIntoView?.({
+      block: 'center',
+      behavior: reduceMotion ? 'auto' : 'smooth',
+    });
     noticesRef.current.focus({ preventScroll: true });
     setRevealNotices(false);
   }, [revealNotices]);

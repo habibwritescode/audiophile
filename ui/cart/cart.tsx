@@ -52,7 +52,7 @@ const Cart = ({ isOpen, onClose }: Props) => {
   const total = items.reduce((sum, item) => sum + item.priceCents * item.quantity, 0);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} origin="top-right">
       <div className="flex justify-center p-6 md:justify-end md:px-10 xl:px-0">
         <div className="max-w-94 flex-grow rounded-lg bg-white px-7 py-8 md:px-8">
           <div className="mb-8 flex items-center justify-between">
@@ -69,7 +69,7 @@ const Cart = ({ isOpen, onClose }: Props) => {
 
           <div role="status">
             {messages.length > 0 && (
-              <div className="mb-6">
+              <div className="mb-6 transition-[opacity,translate] duration-200 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0">
                 <p className="mb-2 text-15 font-bold text-black">We updated your cart:</p>
                 <ul className="grid gap-1 text-15 text-black/75">
                   {messages.map((message) => (

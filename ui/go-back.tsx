@@ -9,7 +9,10 @@ const GoBack = () => {
   const handleClick = () => (window.history.length > 1 ? router.back() : router.push('/'));
 
   return (
-    <button onClick={handleClick} className={`cursor-pointer text-15 text-black/50`}>
+    <button
+      onClick={handleClick}
+      className="cursor-pointer text-15 text-black/50 transition-colors hover:text-primary"
+    >
       Go Back
     </button>
   );

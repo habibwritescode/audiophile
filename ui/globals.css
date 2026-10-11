@@ -34,6 +34,10 @@
   --color-gray-200: #f2f2f2;
   --color-red: #cd2c2c;
 
+  /* Replaces Tailwind's weak default ease-out (0, 0, 0.2, 1): starts fast, so UI responds the
+     moment it's pressed. Every ease-out class and var(--ease-out) uses it. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
   --text-56: 3.5rem;
   --text-56--line-height: 3.625rem;
   --text-56--letter-spacing: 0.05em;

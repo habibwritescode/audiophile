@@ -6,19 +6,57 @@ import Link from 'next/link';
 import Cart from './cart/cart';
 import Modal from './modal';
 import ShopCategories from './shop-categories/shop-categories';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCartHydrated, useCartStore } from '@/lib/cart-store';
 
 // Total items (quantities added up), unlike the modal title, which counts products
 const useCartItemCount = () => {
   const hydrated = useCartHydrated();
   const count = useCartStore((state) => state.lines.reduce((sum, line) => sum + line.quantity, 0));
-  return hydrated ? count : 0;
+  return hydrated ? count : null;
+};
+
+/**
+ * Bumps the badge when items are added, so the eye follows them to the cart. Not when the stored
+ * cart loads (that's not an action), and not when items are removed.
+ */
+const useBadgeBump = (count: number | null) => {
+  const badge = useRef<HTMLSpanElement>(null);
+  const previous = useRef<number | null>(null);
+
+  useEffect(() => {
+    const before = previous.current;
+    previous.current = count;
+    if (before === null || count === null || count <= before) return;
+    const el = badge.current;
+    if (!el?.animate) return;
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    // WAAPI can't read var(): take the shared curve from the theme
+    const easing = getComputedStyle(el).getPropertyValue('--ease-out').trim() || 'ease-out';
+    // A second add mid-bump starts from the badge's current size instead of jumping back to 1
+    const running = el.getAnimations();
+    const current = getComputedStyle(el).transform;
+    el.animate(
+      reduceMotion
+        ? [{ opacity: 0.5 }, { opacity: 1 }]
+        : [
+            { transform: current === 'none' ? 'scale(1)' : current },
+            { transform: 'scale(1.2)', offset: 0.4 },
+            { transform: 'scale(1)' },
+          ],
+      { duration: reduceMotion ? 150 : 250, easing }
+    );
+    running.forEach((animation) => animation.cancel());
+  }, [count]);
+
+  return badge;
 };
 
 const Header = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const itemCount = useCartItemCount();
+  const storedCount = useCartItemCount();
+  const itemCount = storedCount ?? 0;
+  const badge = useBadgeBump(storedCount);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // The menu is mobile/tablet only; close it if the window grows to desktop width
@@ -68,6 +106,7 @@ const Header = () => {
             <Image src="/assets/shared/desktop/icon-cart.svg" alt="" width={23} height={20} />
             {itemCount > 0 && (
               <span
+                ref={badge}
                 aria-hidden="true"
                 className="absolute -top-1 -right-2 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[0.625rem] leading-none font-bold text-white"
               >

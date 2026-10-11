@@ -1,5 +1,10 @@
 import { cn } from '@/lib/helpers';
 
+// The glyph is one character wide: padding widens the tap target, and the negative margin keeps
+// the design's spacing
+const STEP_BUTTON =
+  '-m-2.5 p-2.5 text-18 text-black/25 transition-[color,scale] duration-100 ease-out hover:text-primary enabled:active:scale-90 disabled:cursor-not-allowed disabled:hover:text-black/25';
+
 type Props = {
   value: number;
   handleChange: (val: number) => void;
@@ -27,7 +32,7 @@ const QuantitySelector = ({
         aria-label="Decrease quantity"
         onClick={handleDecrement}
         disabled={disabled}
-        className="text-18 text-black/25 transition-colors hover:text-primary disabled:cursor-not-allowed disabled:hover:text-black/25"
+        className={STEP_BUTTON}
       >
         -
       </button>
@@ -37,7 +42,7 @@ const QuantitySelector = ({
         aria-label="Increase quantity"
         onClick={handleIncrement}
         disabled={disabled || value >= max}
-        className="text-18 text-black/25 transition-colors hover:text-primary disabled:cursor-not-allowed disabled:hover:text-black/25"
+        className={STEP_BUTTON}
       >
         +
       </button>
