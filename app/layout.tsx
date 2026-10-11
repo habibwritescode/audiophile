@@ -22,7 +22,8 @@ export const metadata: Metadata = {
     default: 'Audiophile',
   },
 
-  description: 'Audiophile ecommerce app',
+  description:
+    'Premium headphones, speakers and earphones, chosen by music lovers and sound specialists.',
 };
 
 // The status bar and browser chrome match the header, which is dark in every colour scheme. The
@@ -40,9 +41,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`flex min-h-svh flex-col bg-white ${manrope.variable} text-15 antialiased`}>
+        {/* First Tab stop: keyboard users skip the header's controls on every page */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:text-15 focus:text-black"
+        >
+          Skip to content
+        </a>
         <CartHydration />
         <Header />
-        <main className="flex-grow">{children}</main>
+        <main id="main" tabIndex={-1} className="flex-grow outline-none">
+          {children}
+        </main>
         <Footer />
         {DevDataToggle && <DevDataToggle />}
       </body>

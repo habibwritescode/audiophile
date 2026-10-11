@@ -13,7 +13,11 @@ export const generateStaticParams = () => categories.map((name) => ({ name }));
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
   const { name } = await params;
-  return { title: name.charAt(0).toUpperCase() + name.slice(1) };
+  const title = name.charAt(0).toUpperCase() + name.slice(1);
+  return {
+    title,
+    description: `Shop Audiophile ${name}: prices, stock and details for each model.`,
+  };
 };
 
 const Page = async ({ params }: Props) => {

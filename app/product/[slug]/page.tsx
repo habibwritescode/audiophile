@@ -15,7 +15,8 @@ export const generateStaticParams = async () =>
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
   const { slug } = await params;
-  return { title: (await getProduct(slug))?.name };
+  const product = await getProduct(slug);
+  return { title: product?.name, description: product?.description };
 };
 
 const Page = async ({ params }: Props) => {
