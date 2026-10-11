@@ -22,7 +22,7 @@ const CartItem = ({ name, priceCents, qty, maxQty, image, onQtyChange }: Props) 
 
       <div className="flex flex-grow items-center gap-2">
         <div>
-          <p className="text-15 font-bold text-black">{name}</p>
+          <p className="text-15 font-bold whitespace-nowrap text-black">{name}</p>
           <p className="text-14 font-bold tracking-normal text-black/50">
             {formatAmount(priceCents)}
           </p>

@@ -61,7 +61,8 @@ const ConfirmationModal = ({
         THANK YOU <br /> FOR YOUR ORDER
       </h3>
       <p className="mb-6 text-15 text-black/50 md:mb-8">
-        Your order number is <span className="font-bold text-black">{orderNumber}</span>.
+        Your order number is{' '}
+        <span className="font-bold whitespace-nowrap text-black">{orderNumber}</span>.
       </p>
 
       <div className="mb-6 grid overflow-hidden rounded-lg md:mb-12 md:grid-cols-[1fr_40%]">
