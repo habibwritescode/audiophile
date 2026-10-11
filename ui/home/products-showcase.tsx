@@ -27,11 +27,10 @@ const ProductsShowcase = () => {
         />
 
         <div className="grid place-items-center gap-6 text-center xl:place-items-start xl:text-start">
-          <div>
-            <p className="text-36 text-white md:text-56">ZX9</p>
-            <p className="text-36 text-white md:text-56"> SPEAKER</p>
-          </div>
-          <p className="max-w-70 text-15 text-white/75 md:mb-4 xl:max-w-88">
+          <h2 className="text-36 text-white md:text-56">
+            <span className="block">ZX9</span> <span className="block">SPEAKER</span>
+          </h2>
+          <p className="max-w-70 text-15 text-white md:mb-4 xl:max-w-88">
             Upgrade to premium speakers that are phenomenally built to deliver truly remarkable
             sound.
           </p>
@@ -51,7 +50,7 @@ const ProductsShowcase = () => {
         />
 
         <div className="absolute top-1/2 left-6 flex -translate-y-1/2 flex-col gap-8 md:left-15">
-          <p className="text-28 text-black">ZX7 SPEAKER</p>
+          <h2 className="text-28 text-black">ZX7 SPEAKER</h2>
           <ButtonLink href="/product/zx7-speaker" variant="secondary">
             See Product
           </ButtonLink>
@@ -71,7 +70,7 @@ const ProductsShowcase = () => {
         </div>
 
         <div className="flex flex-col justify-center gap-8 rounded-lg bg-gray-100 px-6 py-10 md:left-15 md:pl-10 xl:pl-24">
-          <p className="text-28 text-black">YX1 EARPHONES</p>
+          <h2 className="text-28 text-black">YX1 EARPHONES</h2>
           <ButtonLink href="/product/yx1-earphones" variant="secondary">
             See Product
           </ButtonLink>

@@ -20,7 +20,7 @@ const SimilarProducts = ({ products }: { products: SimilarProduct[] }) => {
               className="h-auto w-full rounded-lg"
             />
 
-            <p className="my-8 text-24 text-black md:mt-10">{product.name}</p>
+            <h3 className="my-8 text-24 text-black md:mt-10">{product.name}</h3>
             <ButtonLink href={`/product/${product.slug}`}>See Product</ButtonLink>
           </li>
         ))}

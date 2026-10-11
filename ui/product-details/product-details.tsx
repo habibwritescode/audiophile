@@ -32,7 +32,7 @@ const ProductDetails = ({ product }: { product: Product }) => {
             >
               {product.name}
             </h1>
-            <p className="mb-6 max-w-143 text-15 text-black/50 md:mb-8 xl:mb-10 xl:max-w-111.25 xl:text-start">
+            <p className="mb-6 max-w-143 text-15 text-black/60 md:mb-8 xl:mb-10 xl:max-w-111.25 xl:text-start">
               {product.description}
             </p>
             <p className="mb-8 text-18 text-black">{formatAmount(product.priceCents)}</p>
@@ -52,7 +52,7 @@ const ProductDetails = ({ product }: { product: Product }) => {
         <section className="my-22 flex flex-col gap-22 md:my-30 md:gap-30 xl:my-40 xl:flex-row">
           <div>
             <h2 className="mb-6 text-24 text-black uppercase md:mb-8 md:text-32">Features</h2>
-            <p className="max-w-172 text-15 whitespace-pre-line text-black/50 xl:max-w-158">
+            <p className="max-w-172 text-15 whitespace-pre-line text-black/60 xl:max-w-158">
               {product.features}
             </p>
           </div>
@@ -63,7 +63,7 @@ const ProductDetails = ({ product }: { product: Product }) => {
               {product.includes.map((option) => (
                 <li key={option.item} className="flex gap-5">
                   <span className="text-15 text-primary">{option.quantity}x</span>
-                  <span className="text-15 text-black/50">{option.item}</span>
+                  <span className="text-15 text-black/60">{option.item}</span>
                 </li>
               ))}
             </ul>

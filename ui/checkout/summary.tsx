@@ -59,18 +59,18 @@ const CheckoutSummary = ({
       <div className="mt-8 mb-6 grid gap-2">
         {summaryAmounts.map((item) => (
           <div key={item.title} className="flex justify-between">
-            <p className="text-15 text-black/50 uppercase">{item.title}</p>
+            <p className="text-15 text-black/60 uppercase">{item.title}</p>
             <p className="text-18 tracking-normal text-black">{formatAmount(item.value)}</p>
           </div>
         ))}
       </div>
 
       <div className="mb-8 flex justify-between">
-        <p className="text-15 text-black/50 uppercase">Grand Total</p>
+        <p className="text-15 text-black/60 uppercase">Grand Total</p>
         <p className="text-18 tracking-normal text-primary">{formatAmount(grandTotal)}</p>
       </div>
 
-      {chargeNotice && <p className="mb-4 text-15 text-black/50">{chargeNotice}</p>}
+      {chargeNotice && <p className="mb-4 text-15 text-black/60">{chargeNotice}</p>}
 
       <Button fullWidth type="submit" form={CHECKOUT_FORM_ID} disabled={busy !== null}>
         {busy ? busyLabels[busy] : awaitingConfirmation ? 'Check payment again' : 'Continue & Pay'}

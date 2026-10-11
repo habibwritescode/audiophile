@@ -60,7 +60,7 @@ const ConfirmationModal = ({
       <h3 className="mt-6 mb-4 text-24 text-black md:mt-8 md:mb-6 md:text-32">
         THANK YOU <br /> FOR YOUR ORDER
       </h3>
-      <p className="mb-6 text-15 text-black/50 md:mb-8">
+      <p className="mb-6 text-15 text-black/60 md:mb-8">
         Your order number is{' '}
         <span className="font-bold whitespace-nowrap text-black">{orderNumber}</span>.
       </p>
@@ -98,7 +98,7 @@ const ConfirmationModal = ({
               aria-expanded={isExpanded}
               aria-controls={otherItemsId}
               onClick={() => setIsExpanded((prev) => !prev)}
-              className="mt-3 w-full border-t border-black/10 pt-3 text-12 font-bold text-black/50 transition-colors hover:text-primary active:text-primary"
+              className="mt-3 w-full border-t border-black/10 pt-3 text-12 font-bold text-black/60 transition-colors hover:text-primary active:text-primary"
             >
               {isExpanded
                 ? 'View less'

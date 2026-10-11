@@ -27,7 +27,7 @@ const ShopCategoryItem = ({ imgSrc, categoryName, className, onClick }: Props) =
       <div className="grid place-items-center gap-4">
         <p className="text-15 font-bold text-black uppercase">{categoryName}</p>
         <div className="flex items-center gap-3">
-          <p className="text-13 text-black/50 uppercase transition-colors group-hover:text-primary group-active:text-primary">
+          <p className="text-13 text-black/60 uppercase transition-colors group-hover:text-primary group-active:text-primary">
             Shop
           </p>
 

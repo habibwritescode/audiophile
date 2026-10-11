@@ -159,12 +159,12 @@ const CheckoutForm = ({ onSubmit, cardAvailable = true, onPaymentMethodChange }:
       </div>
 
       {!cardAvailable && (
-        <p className="mb-6 text-15 text-black/50">
+        <p className="mb-6 text-15 text-black/60">
           Card payments are unavailable right now. Please choose Cash on Delivery.
         </p>
       )}
       {paymentMethod === 'card' ? (
-        <p className="text-15 text-black/50">
+        <p className="text-15 text-black/60">
           After you press Continue & Pay, you’ll enter your card details in Paystack’s secure
           window. Cards are charged in naira.
         </p>
@@ -172,7 +172,7 @@ const CheckoutForm = ({ onSubmit, cardAvailable = true, onPaymentMethodChange }:
         <div className="mt-6 flex items-center gap-8 md:mt-7.5">
           <Image src={cashOnDeliveryIcon} alt="" className="shrink-0" />
 
-          <p className="text-15 text-black/50">
+          <p className="text-15 text-black/60">
             The ‘Cash on Delivery’ option enables you to pay in cash when our delivery courier
             arrives at your residence. Just make sure your address is correct so that your order
             will not be cancelled.

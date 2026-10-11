@@ -295,7 +295,7 @@ const Checkout = ({ cardAvailable }: Props) => {
               {notices}
               <div className="grid justify-items-center gap-6 rounded-lg bg-white px-6 py-16 text-center">
                 <h1 className="text-28 text-black uppercase">Your cart is empty</h1>
-                <p className="text-15 text-black/50">Add a product to check out.</p>
+                <p className="text-15 text-black/60">Add a product to check out.</p>
                 <ButtonLink href="/">Continue shopping</ButtonLink>
               </div>
             </section>

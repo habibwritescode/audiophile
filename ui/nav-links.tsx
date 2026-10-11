@@ -27,7 +27,7 @@ const NavLinks = () => {
           <li key={item.name}>
             <Link
               href={item.href}
-              className="text-13 text-white uppercase transition-colors hover:text-primary active:text-primary"
+              className="-my-2.5 inline-block py-2.5 text-13 text-white uppercase transition-colors hover:text-primary active:text-primary"
             >
               {item.name}
             </Link>

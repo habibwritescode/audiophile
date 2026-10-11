@@ -42,8 +42,10 @@
 
   --color-white: #fff;
   --color-black: #000;
-  --color-primary: #d87d4a;
-  --color-primary-light: #fbaf85;
+  /* Deeper than the design's #d87d4a, which gave white text and orange-on-white text 3.0:1;
+     this one gives 4.8:1 both ways (WCAG AA). The hover goes darker still, to keep its contrast. */
+  --color-primary: #b05c2b;
+  --color-primary-dark: #8f4a22;
   --color-neutral-dark: #101010;
   --color-gray-100: #f1f1f1;
   --color-gray-50: #fafafa;
