@@ -1,5 +1,5 @@
 import { SimilarProduct } from '@/lib/types';
-import Image from 'next/image';
+import ArtDirectedImage from '@/ui/art-directed-image';
 import { ButtonLink } from '@/ui/button';
 
 const SimilarProducts = ({ products }: { products: SimilarProduct[] }) => {
@@ -12,26 +12,12 @@ const SimilarProducts = ({ products }: { products: SimilarProduct[] }) => {
       <ul className="grid gap-14 md:grid-cols-3 md:gap-3 xl:gap-7.5">
         {products.map((product) => (
           <li key={product.slug} className="grid place-items-center">
-            <Image
-              alt=""
-              src={product.image.mobile}
-              width={327}
-              height={120}
-              className="w-full rounded-lg md:hidden"
-            />
-            <Image
-              alt=""
-              src={product.image.tablet}
-              width={223}
-              height={318}
-              className="hidden w-full rounded-lg md:block xl:hidden"
-            />
-            <Image
-              alt=""
-              src={product.image.desktop}
-              width={350}
-              height={318}
-              className="hidden w-full rounded-lg xl:block"
+            <ArtDirectedImage
+              mobile={{ src: product.image.mobile, width: 327, height: 120 }}
+              tablet={{ src: product.image.tablet, width: 223, height: 318 }}
+              desktop={{ src: product.image.desktop, width: 350, height: 318 }}
+              sizes="(min-width: 80rem) 350px, (min-width: 48rem) calc((100vw - 104px) / 3), calc(100vw - 48px)"
+              className="h-auto w-full rounded-lg"
             />
 
             <p className="my-8 text-24 text-black md:mt-10">{product.name}</p>

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import ArtDirectedImage from './art-directed-image';
 
 import bestGearMobile from '../public/assets/shared/mobile/image-best-gear.jpg';
 import bestGearTab from '../public/assets/shared/tablet/image-best-gear.jpg';
@@ -10,16 +10,12 @@ const BringingYouTheBestGear = ({ className }: { className?: string }) => {
     <section className={cn('my-30 px-6 md:px-10 xl:my-40', className)}>
       <div className="mx-auto grid max-w-6xl gap-10 md:gap-16 xl:grid-cols-2 xl:gap-31">
         <div className="xl:order-2">
-          <Image alt="" src={bestGearMobile} className="h-auto w-full rounded-lg md:hidden" />
-          <Image
-            alt=""
-            src={bestGearTab}
-            className="hidden h-auto w-full rounded-lg md:block xl:hidden"
-          />
-          <Image
-            alt=""
-            src={bestGearDesktop}
-            className="hidden h-auto w-full rounded-lg xl:block"
+          <ArtDirectedImage
+            mobile={bestGearMobile}
+            tablet={bestGearTab}
+            desktop={bestGearDesktop}
+            sizes="(min-width: 80rem) 540px, (min-width: 48rem) calc(100vw - 80px), calc(100vw - 48px)"
+            className="h-auto w-full rounded-lg"
           />
         </div>
 

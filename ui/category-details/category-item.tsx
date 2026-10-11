@@ -1,5 +1,5 @@
 import { Product } from '@/lib/types';
-import Image from 'next/image';
+import ArtDirectedImage from '@/ui/art-directed-image';
 import { ButtonLink } from '@/ui/button';
 import StockLabel from '@/ui/stock-label';
 
@@ -14,26 +14,14 @@ const CategoryItem = ({ data, index }: Props) => {
   return (
     <li className="grid gap-8 md:gap-13 xl:grid-cols-2 xl:gap-31.25">
       <div className={isOddIndex ? 'xl:order-2' : ''}>
-        <Image
-          alt=""
-          src={data.categoryImage.mobile}
-          width={327}
-          height={352}
-          className="h-auto w-full rounded-lg md:hidden"
-        />
-        <Image
-          alt=""
-          src={data.categoryImage.tablet}
-          width={689}
-          height={352}
-          className="hidden h-auto w-full rounded-lg md:block xl:hidden"
-        />
-        <Image
-          alt=""
-          src={data.categoryImage.desktop}
-          width={540}
-          height={560}
-          className="hidden h-auto w-full rounded-lg xl:block"
+        {/* The first product is the page's largest image: it loads first, the rest lazily */}
+        <ArtDirectedImage
+          mobile={{ src: data.categoryImage.mobile, width: 327, height: 352 }}
+          tablet={{ src: data.categoryImage.tablet, width: 689, height: 352 }}
+          desktop={{ src: data.categoryImage.desktop, width: 540, height: 560 }}
+          sizes="(min-width: 80rem) 540px, (min-width: 48rem) calc(100vw - 80px), calc(100vw - 48px)"
+          priority={index === 0}
+          className="h-auto w-full rounded-lg"
         />
       </div>
 

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import ArtDirectedImage from '../art-directed-image';
 
 import zx9SpeakerMobile from '../../public/assets/home/mobile/image-speaker-zx9.png';
 import zx9SpeakerTab from '../../public/assets/home/tablet/image-speaker-zx9.png';
@@ -18,12 +18,12 @@ const ProductsShowcase = () => {
   return (
     <div className="grid gap-6 md:gap-8 xl:gap-12">
       <div className="grid place-items-center gap-9 overflow-hidden rounded-lg bg-primary bg-[url('/assets/home/desktop/pattern-circles.svg')] bg-cover bg-[50%_-130px] bg-no-repeat px-6 py-14 md:gap-16 md:bg-auto md:bg-[50%_-280px] md:pb-16 xl:grid-cols-2 xl:bg-[-120px_0px] xl:pl-30">
-        <Image alt="" src={zx9SpeakerMobile} className="h-auto w-40 md:hidden" />
-        <Image alt="" src={zx9SpeakerTab} className="hidden h-auto w-50 md:block xl:hidden" />
-        <Image
-          alt=""
-          src={zx9SpeakerDesktop}
-          className="relative top-19 hidden h-auto w-100 xl:block"
+        <ArtDirectedImage
+          mobile={zx9SpeakerMobile}
+          tablet={zx9SpeakerTab}
+          desktop={zx9SpeakerDesktop}
+          sizes="(min-width: 80rem) 400px, (min-width: 48rem) 200px, 160px"
+          className="relative h-auto w-40 md:w-50 xl:top-19 xl:w-100"
         />
 
         <div className="grid place-items-center gap-6 text-center xl:place-items-start xl:text-start">
@@ -42,16 +42,12 @@ const ProductsShowcase = () => {
       </div>
       {/* // ZX7 */}
       <div className="relative">
-        <Image alt="" src={zx7SpeakerMobile} className="h-auto w-full rounded-lg md:hidden" />
-        <Image
-          alt=""
-          src={zx7SpeakerTab}
-          className="hidden h-auto w-full rounded-lg md:block xl:hidden"
-        />
-        <Image
-          alt=""
-          src={zx7SpeakerDesktop}
-          className="hidden h-auto w-full rounded-lg xl:block"
+        <ArtDirectedImage
+          mobile={zx7SpeakerMobile}
+          tablet={zx7SpeakerTab}
+          desktop={zx7SpeakerDesktop}
+          sizes="(min-width: 80rem) 1152px, (min-width: 48rem) calc(100vw - 80px), calc(100vw - 48px)"
+          className="h-auto w-full rounded-lg"
         />
 
         <div className="absolute top-1/2 left-6 flex -translate-y-1/2 flex-col gap-8 md:left-15">
@@ -65,16 +61,12 @@ const ProductsShowcase = () => {
       {/* EARPHONES  */}
       <div className="grid w-full gap-6 md:grid-cols-2 md:gap-3 xl:gap-8">
         <div>
-          <Image alt="" src={earphonesMobile} className="h-auto w-full rounded-lg md:hidden" />
-          <Image
-            alt=""
-            src={earphonesTab}
-            className="hidden h-auto w-full rounded-lg md:block xl:hidden"
-          />
-          <Image
-            alt=""
-            src={earphonesDesktop}
-            className="hidden h-auto w-full rounded-lg xl:block"
+          <ArtDirectedImage
+            mobile={earphonesMobile}
+            tablet={earphonesTab}
+            desktop={earphonesDesktop}
+            sizes="(min-width: 80rem) 560px, (min-width: 48rem) calc(50vw - 46px), calc(100vw - 48px)"
+            className="h-auto w-full rounded-lg"
           />
         </div>
 

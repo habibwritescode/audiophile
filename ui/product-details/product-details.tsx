@@ -1,5 +1,5 @@
 import GoBack from '@/ui/go-back';
-import { getImageProps } from 'next/image';
+import ArtDirectedImage from '@/ui/art-directed-image';
 import { formatAmount } from '@/lib/helpers';
 import { Product } from '@/lib/types';
 import ProductGallery from './gallery';
@@ -8,46 +8,22 @@ import ShopCategories from '@/ui/shop-categories/shop-categories';
 import AddToCart from './add-to-cart';
 import StockLabel from '@/ui/stock-label';
 
-const IMAGE_SIZES = '(min-width: 80rem) 540px, (min-width: 48rem) 45vw, 100vw';
-
 const ProductDetails = ({ product }: { product: Product }) => {
-  const imageProps = (src: string, width: number, height: number) =>
-    getImageProps({
-      src,
-      width,
-      height,
-      alt: '',
-      priority: true,
-      fetchPriority: 'high',
-      sizes: IMAGE_SIZES,
-    }).props;
-  const mobile = imageProps(product.image.mobile, 327, 327);
-  const tablet = imageProps(product.image.tablet, 281, 480);
-  const desktop = imageProps(product.image.desktop, 540, 560);
-
   return (
     <div className="px-6 pt-4 md:px-10 md:pt-8 xl:pt-20">
       <div className="mx-auto max-w-6xl">
         <GoBack />
 
         <section className="mt-6 grid gap-8 md:grid-cols-2 md:gap-17.25 xl:mt-14 xl:gap-31">
-          {/* The main image is the page's LCP: one <picture> loads only the matching size, eagerly.
-              Each source carries its own dimensions because the crops differ per breakpoint. */}
-          <picture>
-            <source
-              media="(min-width: 80rem)"
-              srcSet={desktop.srcSet}
-              width={desktop.width}
-              height={desktop.height}
-            />
-            <source
-              media="(min-width: 48rem)"
-              srcSet={tablet.srcSet}
-              width={tablet.width}
-              height={tablet.height}
-            />
-            <img {...mobile} alt="" className="h-auto w-full rounded-lg" />
-          </picture>
+          {/* The page's largest image: loaded at once and first */}
+          <ArtDirectedImage
+            mobile={{ src: product.image.mobile, width: 327, height: 327 }}
+            tablet={{ src: product.image.tablet, width: 281, height: 480 }}
+            desktop={{ src: product.image.desktop, width: 540, height: 560 }}
+            sizes="(min-width: 80rem) 540px, (min-width: 48rem) 45vw, 100vw"
+            priority
+            className="h-auto w-full rounded-lg"
+          />
 
           <div className="flex flex-col justify-center">
             {product.new ? <p className="text-14 text-primary uppercase"> New Product</p> : null}

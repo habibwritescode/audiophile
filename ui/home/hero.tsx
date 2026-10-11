@@ -1,37 +1,22 @@
-import { getImageProps } from 'next/image';
+import ArtDirectedImage from '../art-directed-image';
 import { ButtonLink } from '@/ui/button';
 
 import mobileHero from '../../public/assets/home/mobile/image-header.jpg';
 import tabletHero from '../../public/assets/home/tablet/image-header.jpg';
 import desktopHero from '../../public/assets/home/desktop/image-hero.jpg';
 
-// Art direction: one <picture> so each device downloads only its own hero image
-// getImageProps doesn't add the preload <Image priority> does, so request high priority directly
-const common = {
-  alt: '',
-  fill: true,
-  sizes: '100vw',
-  priority: true,
-  fetchPriority: 'high' as const,
-};
-const {
-  props: { srcSet: desktopSrcSet },
-} = getImageProps({ ...common, src: desktopHero });
-const {
-  props: { srcSet: tabletSrcSet },
-} = getImageProps({ ...common, src: tabletHero });
-const {
-  props: { srcSet: mobileSrcSet, ...imgProps },
-} = getImageProps({ ...common, src: mobileHero });
-
 const Hero = () => {
   return (
     <section className="relative min-h-[calc(100svh-var(--header-height))]">
-      <picture>
-        <source media="(min-width: 80rem)" srcSet={desktopSrcSet} />
-        <source media="(min-width: 48rem)" srcSet={tabletSrcSet} />
-        <img {...imgProps} alt="" srcSet={mobileSrcSet} className="object-cover" />
-      </picture>
+      <ArtDirectedImage
+        mobile={mobileHero}
+        tablet={tabletHero}
+        desktop={desktopHero}
+        sizes="100vw"
+        fill
+        priority
+        className="object-cover"
+      />
 
       <div className="absolute inset-0 bg-black/30" />
 
