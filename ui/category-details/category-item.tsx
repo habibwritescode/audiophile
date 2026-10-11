@@ -1,6 +1,7 @@
 import { Product } from '@/lib/types';
 import Image from 'next/image';
 import { ButtonLink } from '@/ui/button';
+import StockLabel from '@/ui/stock-label';
 
 type Props = {
   data: Product;
@@ -48,6 +49,7 @@ const CategoryItem = ({ data, index }: Props) => {
         <p className="mb-6 max-w-80 text-center text-15 text-black/50 md:max-w-143 xl:mb-10 xl:max-w-111.25 xl:text-start">
           {data.description}
         </p>
+        <StockLabel stock={data.stock} className="mb-6" />
         <ButtonLink href={`/product/${data.slug}`}>See product</ButtonLink>
       </div>
     </li>

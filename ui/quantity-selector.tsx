@@ -6,10 +6,18 @@ type Props = {
   className?: string;
   disabled?: boolean;
   min?: number;
+  max?: number;
 };
 
-const QuantitySelector = ({ value, handleChange, className, min = 1, disabled }: Props) => {
-  const handleIncrement = () => handleChange(value + 1);
+const QuantitySelector = ({
+  value,
+  handleChange,
+  className,
+  min = 1,
+  max = Infinity,
+  disabled,
+}: Props) => {
+  const handleIncrement = () => handleChange(Math.min(max, value + 1));
   const handleDecrement = () => handleChange(Math.max(min, value - 1));
 
   return (
@@ -28,7 +36,7 @@ const QuantitySelector = ({ value, handleChange, className, min = 1, disabled }:
         type="button"
         aria-label="Increase quantity"
         onClick={handleIncrement}
-        disabled={disabled}
+        disabled={disabled || value >= max}
         className="text-18 text-black/25 transition-colors hover:text-primary disabled:cursor-not-allowed disabled:hover:text-black/25"
       >
         +

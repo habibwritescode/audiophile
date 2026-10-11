@@ -6,6 +6,7 @@ import ProductGallery from './gallery';
 import SimilarProducts from './similar-products';
 import ShopCategories from '@/ui/shop-categories/shop-categories';
 import AddToCart from './add-to-cart';
+import StockLabel from '@/ui/stock-label';
 
 const IMAGE_SIZES = '(min-width: 80rem) 540px, (min-width: 48rem) 45vw, 100vw';
 
@@ -59,6 +60,7 @@ const ProductDetails = ({ product }: { product: Product }) => {
               {product.description}
             </p>
             <p className="mb-8 text-18 text-black">{formatAmount(product.priceCents)}</p>
+            <StockLabel stock={product.stock} className="-mt-4 mb-6" />
             <AddToCart
               product={{
                 slug: product.slug,
@@ -66,6 +68,7 @@ const ProductDetails = ({ product }: { product: Product }) => {
                 cartImage: product.cartImage,
                 priceCents: product.priceCents,
               }}
+              stock={product.stock}
             />
           </div>
         </section>
