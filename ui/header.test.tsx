@@ -1,6 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { useCartModal } from '@/lib/cart-modal';
 import { useCartStore } from '@/lib/cart-store';
 import Header from './header';
 
@@ -19,6 +20,7 @@ const cartButton = () => screen.getByRole('button', { name: /^Open cart/ });
 
 beforeEach(async () => {
   pathname = '/';
+  useCartModal.setState({ isOpen: false });
   localStorage.clear();
   useCartStore.setState({ lines: [] });
   // The badge waits for the stored cart to load, as in the browser
@@ -80,6 +82,12 @@ describe('Header modals', () => {
     render(<Header />, { container: document.body });
     await user.click(cartButton());
     expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    // While open, the toggle says what it does now
+    expect(screen.getByRole('button', { name: 'Close cart', hidden: true })).toHaveAttribute(
+      'aria-expanded',
+      'true'
+    );
 
     await user.click(screen.getByRole('banner', { hidden: true }));
 

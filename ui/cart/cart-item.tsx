@@ -11,9 +11,11 @@ type Props = {
   image: string;
   // When provided, renders a quantity selector instead of the "xN" label
   onQtyChange?: (qty: number) => void;
+  /** With onQtyChange: at quantity 1, "−" becomes a remove button that calls this */
+  onRemove?: () => void;
 };
 
-const CartItem = ({ name, priceCents, qty, maxQty, image, onQtyChange }: Props) => {
+const CartItem = ({ name, priceCents, qty, maxQty, image, onQtyChange, onRemove }: Props) => {
   return (
     <li className="flex items-center gap-4">
       <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
@@ -27,7 +29,7 @@ const CartItem = ({ name, priceCents, qty, maxQty, image, onQtyChange }: Props) 
             space left and the name is cut with an ellipsis instead */}
         <div className="min-w-0 flex-1 [contain:inline-size]">
           <p className="truncate text-15 font-bold text-black">{name}</p>
-          <p className="text-14 font-bold tracking-normal text-black/50">
+          <p className="text-14 font-bold tracking-normal text-black/60">
             {formatAmount(priceCents)}
           </p>
         </div>
@@ -37,10 +39,12 @@ const CartItem = ({ name, priceCents, qty, maxQty, image, onQtyChange }: Props) 
             handleChange={onQtyChange}
             min={0}
             max={maxQty}
+            onRemove={onRemove}
+            removeLabel={`Remove ${name}`}
             className="ml-auto h-8 w-24 shrink-0 justify-between gap-0 px-3 max-xs:w-20"
           />
         ) : (
-          <p className="ml-auto shrink-0 text-15 font-bold text-black/50">x{qty}</p>
+          <p className="ml-auto shrink-0 text-15 font-bold text-black/60">x{qty}</p>
         )}
       </div>
     </li>

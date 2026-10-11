@@ -1,10 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { validateCart } from '@/app/checkout/actions';
 import { toCartRequest } from '@/lib/cart-check';
 import { cn, formatAmount } from '@/lib/helpers';
-import { useCartStore } from '@/lib/cart-store';
+import { CartLine, useCartStore } from '@/lib/cart-store';
 import { ButtonLink } from '../button';
 import Modal from '../modal';
 import CartItem from './cart-item';
@@ -44,6 +44,12 @@ const useScrollFades = () => {
 
 const FADE = '24px';
 
+/** How long "Removed …" stays undoable */
+export const UNDO_MS = 6000;
+
+/** A removal that can be taken back while the cart is still exactly as it left it */
+type Undo = { message: string; before: CartLine[]; after: CartLine[] };
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
@@ -57,6 +63,30 @@ const Cart = ({ isOpen, onClose }: Props) => {
   const [messages, setMessages] = useState<string[]>([]);
   const [available, setAvailable] = useState<Map<string, number>>(new Map());
   const { scroller, fades } = useScrollFades();
+  const [undo, setUndo] = useState<Undo | null>(null);
+  // Removing a row removes the focused button with it: focus goes to Undo, and when Undo is used or
+  // expires while focused, to the heading (always there), so keyboard users never land on <body>
+  const undoButton = useRef<HTMLButtonElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+
+  const removeUndoably = (message: string, remove: () => void) => {
+    const before = useCartStore.getState().lines;
+    remove();
+    setUndo({ message, before, after: useCartStore.getState().lines });
+  };
+
+  useEffect(() => {
+    if (!undo) return;
+    undoButton.current?.focus();
+    const timer = setTimeout(() => {
+      if (document.activeElement === undoButton.current) heading.current?.focus();
+      setUndo(null);
+    }, UNDO_MS);
+    return () => clearTimeout(timer);
+  }, [undo]);
+
+  // Only while nothing else has changed the cart: undoing then would also discard the newer change
+  const canUndo = undo !== null && items === undo.after;
 
   // Checks stock and prices each time the cart opens, as checkout does
   useEffect(() => {
@@ -64,6 +94,7 @@ const Cart = ({ isOpen, onClose }: Props) => {
     const checked = useCartStore.getState().lines;
     setMessages([]);
     setAvailable(new Map());
+    setUndo(null);
     if (checked.length === 0) return;
 
     let closed = false;
@@ -100,14 +131,36 @@ const Cart = ({ isOpen, onClose }: Props) => {
       panelClassName="flex max-h-[calc(100dvh-var(--header-height)-3rem)] max-w-94 flex-grow flex-col rounded-lg bg-white px-7 py-8 max-xs:max-h-[calc(100dvh-var(--header-height)-2rem)] max-xs:px-5 md:px-8"
     >
       <div className="mb-8 flex shrink-0 items-center justify-between">
-        <h3 className="text-18 text-black uppercase">Cart ({productCount})</h3>
+        <h3 ref={heading} tabIndex={-1} className="text-18 text-black uppercase outline-none">
+          Cart ({productCount})
+        </h3>
         {items.length > 0 && (
           <button
-            onClick={clear}
-            className="text-15 text-black/50 underline transition-colors hover:text-primary active:text-primary"
+            onClick={() => removeUndoably('Cart emptied', clear)}
+            className="text-15 text-black/60 underline transition-colors hover:text-primary active:text-primary"
           >
             Remove all
           </button>
+        )}
+      </div>
+
+      <div role="status" className="shrink-0">
+        {canUndo && (
+          <p className="-mt-4 mb-4 flex items-center justify-between gap-4 rounded-lg bg-gray-100 px-4 py-3 text-15 text-black">
+            <span className="min-w-0 truncate">{undo.message}</span>
+            <button
+              ref={undoButton}
+              type="button"
+              onClick={() => {
+                heading.current?.focus();
+                useCartStore.setState({ lines: undo.before });
+                setUndo(null);
+              }}
+              className="shrink-0 font-bold text-primary underline active:opacity-60"
+            >
+              Undo
+            </button>
+          </p>
         )}
       </div>
 
@@ -157,17 +210,20 @@ const Cart = ({ isOpen, onClose }: Props) => {
                   maxQty={available.get(item.slug)}
                   image={item.cartImage}
                   onQtyChange={(qty) => setQuantity(item.slug, qty)}
+                  onRemove={() =>
+                    removeUndoably(`Removed ${item.shortName}`, () => setQuantity(item.slug, 0))
+                  }
                 />
               ))}
             </ul>
           ) : (
-            <p className="py-6 text-center text-15 text-black/50">Your cart is empty.</p>
+            <p className="py-6 text-center text-15 text-black/60">Your cart is empty.</p>
           )}
         </div>
       </div>
 
       <div className="mt-8 mb-6 flex shrink-0 justify-between">
-        <p className="text-15 text-black/50 uppercase">Total</p>
+        <p className="text-15 text-black/60 uppercase">Total</p>
         <p className="text-18 tracking-normal text-black">{formatAmount(total)}</p>
       </div>
       {items.length > 0 && (

@@ -8,6 +8,7 @@ import Cart from './cart/cart';
 import Modal from './modal';
 import ShopCategories from './shop-categories/shop-categories';
 import { useEffect, useRef, useState } from 'react';
+import { useCartModal } from '@/lib/cart-modal';
 import { useCartHydrated, useCartStore } from '@/lib/cart-store';
 
 // Total items (quantities added up), unlike the modal title, which counts products
@@ -54,7 +55,8 @@ const useBadgeBump = (count: number | null) => {
 };
 
 const Header = () => {
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const isCartOpen = useCartModal((state) => state.isOpen);
+  const setIsCartOpen = useCartModal((state) => state.setOpen);
   const storedCount = useCartItemCount();
   const itemCount = storedCount ?? 0;
   const badge = useBadgeBump(storedCount);
@@ -66,9 +68,11 @@ const Header = () => {
   const [modalsPathname, setModalsPathname] = useState(pathname);
   if (pathname !== modalsPathname) {
     setModalsPathname(pathname);
-    setIsCartOpen(false);
     setIsMenuOpen(false);
   }
+  // The cart's state is shared (Add to Cart's "View cart" opens it), and a shared store can't be
+  // updated while rendering, so it closes in an effect
+  useEffect(() => setIsCartOpen(false), [pathname, setIsCartOpen]);
 
   // Headless UI counts the header as part of the dialog's tree, so a click on it isn't "outside"
   // and doesn't close the cart or menu. Do it here; each toggle button handles its own modal.
@@ -93,7 +97,7 @@ const Header = () => {
         <div className="mx-auto flex max-w-6xl items-center justify-between border-b border-b-white/20 px-6 py-8 md:justify-start md:gap-17 md:px-0 xl:gap-0 xl:py-9">
           <button
             type="button"
-            aria-label="Open menu"
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMenuOpen}
             data-modal-toggle="menu"
             onClick={() => setIsMenuOpen((prev) => !prev)}
@@ -117,10 +121,13 @@ const Header = () => {
           <button
             type="button"
             aria-label={
-              itemCount
-                ? `Open cart, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`
-                : 'Open cart'
+              isCartOpen
+                ? 'Close cart'
+                : itemCount
+                  ? `Open cart, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`
+                  : 'Open cart'
             }
+            aria-expanded={isCartOpen}
             data-modal-toggle="cart"
             onClick={() => setIsCartOpen((prev) => !prev)}
             className="relative -m-2 p-2 transition-opacity active:opacity-60 md:ml-auto"

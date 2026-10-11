@@ -2,6 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useCartModal } from '@/lib/cart-modal';
 import { useCartStore } from '@/lib/cart-store';
 import AddToCart, { ADDED_FEEDBACK_MS } from './add-to-cart';
 
@@ -123,5 +124,17 @@ describe('AddToCart', () => {
 
     expect(lines()[0].quantity).toBe(3);
     expect(screen.getByRole('button', { name: 'All 3 in cart' })).toBeDisabled();
+  });
+
+  it('offers a way to the cart once something has been added', async () => {
+    const user = userEvent.setup();
+    useCartModal.setState({ isOpen: false });
+    render(<AddToCart product={zx9} stock={10} />);
+    expect(screen.queryByRole('button', { name: 'View cart' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Add To Cart' }));
+    await user.click(screen.getByRole('button', { name: 'View cart' }));
+
+    expect(useCartModal.getState().isOpen).toBe(true);
   });
 });

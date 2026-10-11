@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useCartModal } from '@/lib/cart-modal';
 import { CartLine, MAX_QUANTITY, useCartHydrated, useCartStore } from '@/lib/cart-store';
 import Button from '@/ui/button';
 import QuantitySelector from '@/ui/quantity-selector';
@@ -16,6 +17,9 @@ type Props = {
 const AddToCart = ({ product, stock }: Props) => {
   const [qtyToAdd, setQtyToAdd] = useState(1);
   const [added, setAdded] = useState(false);
+  // Stays after the "Added" label reverts: the way on to the cart from here
+  const [hasAdded, setHasAdded] = useState(false);
+  const openCart = useCartModal((state) => state.setOpen);
   const resetTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const add = useCartStore((state) => state.add);
   const inCart = useCartStore(
@@ -33,6 +37,7 @@ const AddToCart = ({ product, stock }: Props) => {
   const handleAddToCart = () => {
     add(product, quantity);
     setAdded(true);
+    setHasAdded(true);
     clearTimeout(resetTimer.current);
     resetTimer.current = setTimeout(() => setAdded(false), ADDED_FEEDBACK_MS);
   };
@@ -46,19 +51,30 @@ const AddToCart = ({ product, stock }: Props) => {
         : 'Add To Cart';
 
   return (
-    <div className="flex gap-4">
-      <QuantitySelector
-        value={quantity}
-        handleChange={setQtyToAdd}
-        max={room}
-        disabled={!ready || room === 0}
-      />
-      <Button onClick={handleAddToCart} className="min-w-40" disabled={!ready || room === 0}>
-        {label}
-      </Button>
-      <span role="status" className="sr-only">
-        {added ? 'Added to cart' : ''}
-      </span>
+    <div>
+      <div className="flex gap-4">
+        <QuantitySelector
+          value={quantity}
+          handleChange={setQtyToAdd}
+          max={room}
+          disabled={!ready || room === 0}
+        />
+        <Button onClick={handleAddToCart} className="min-w-40" disabled={!ready || room === 0}>
+          {label}
+        </Button>
+        <span role="status" className="sr-only">
+          {added ? 'Added to cart' : ''}
+        </span>
+      </div>
+      {hasAdded && (
+        <button
+          type="button"
+          onClick={() => openCart(true)}
+          className="mt-4 text-15 font-bold text-primary underline active:opacity-60"
+        >
+          View cart
+        </button>
+      )}
     </div>
   );
 };

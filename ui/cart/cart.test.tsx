@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { validateCart } from '@/app/checkout/actions';
 import { CartCheckLine } from '@/lib/cart-check';
 import { useCartStore } from '@/lib/cart-store';
-import Cart from './cart';
+import Cart, { UNDO_MS } from './cart';
 
 vi.mock('@/app/checkout/actions', () => ({ validateCart: vi.fn() }));
 const checkMock = vi.mocked(validateCart);
@@ -64,16 +64,37 @@ describe('Cart', () => {
     expect(screen.getByText('$1,798')).toBeInTheDocument();
   });
 
-  it('removes a product whose quantity goes to 0', async () => {
+  it('removes a product at quantity 1, and Undo puts it back where it was', async () => {
+    const user = userEvent.setup();
+    useCartStore.getState().add(xx59, 1);
+    useCartStore.getState().add(yx1, 2);
+    const before = useCartStore.getState().lines;
+    renderCart();
+
+    // At quantity 1, "−" becomes Remove
+    expect(within(row('XX59')).queryByRole('button', { name: 'Decrease quantity' })).toBeNull();
+    await user.click(within(row('XX59')).getByRole('button', { name: 'Remove XX59' }));
+
+    expect(screen.getByRole('heading', { name: 'Cart (1)' })).toBeInTheDocument();
+    expect(screen.getByText('Removed XX59')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+
+    expect(useCartStore.getState().lines).toEqual(before);
+    expect(screen.queryByText('Removed XX59')).not.toBeInTheDocument();
+  });
+
+  it('offers no undo once the cart has changed again', async () => {
     const user = userEvent.setup();
     useCartStore.getState().add(xx59, 1);
     useCartStore.getState().add(yx1, 1);
     renderCart();
 
-    await user.click(within(row('XX59')).getByRole('button', { name: 'Decrease quantity' }));
+    await user.click(within(row('XX59')).getByRole('button', { name: 'Remove XX59' }));
+    await user.click(within(row('YX1')).getByRole('button', { name: 'Increase quantity' }));
 
-    expect(screen.queryByText('XX59')).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Cart (1)' })).toBeInTheDocument();
+    // Undoing now would also throw away the newer change
+    expect(screen.queryByRole('button', { name: 'Undo' })).not.toBeInTheDocument();
   });
 
   it('empties the cart with Remove all and shows the empty state', async () => {
@@ -86,6 +107,9 @@ describe('Cart', () => {
     expect(useCartStore.getState().lines).toEqual([]);
     expect(screen.getByText('Your cart is empty.')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Checkout' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(useCartStore.getState().lines).toEqual([{ ...xx59, quantity: 1 }]);
   });
 
   it('checks stock on opening, corrects the cart and caps "+" at what is left', async () => {
@@ -108,7 +132,7 @@ describe('Cart', () => {
     useCartStore.getState().add(yx1, 1);
     renderCart();
 
-    await user.click(within(row('YX1')).getByRole('button', { name: 'Decrease quantity' }));
+    await user.click(within(row('YX1')).getByRole('button', { name: 'Remove YX1' }));
     await act(async () => answer(inStock([xx59], 0)));
 
     // A sold-out answer for the old cart would have removed XX59
@@ -140,5 +164,35 @@ describe('Cart', () => {
     // On screen, the dimmed space beside the card
     await user.click(card.parentElement!);
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('keeps keyboard focus on track: Undo after a removal, the heading after undoing', async () => {
+    const user = userEvent.setup();
+    useCartStore.getState().add(xx59, 1);
+    useCartStore.getState().add(yx1, 1);
+    renderCart();
+
+    await user.click(within(row('XX59')).getByRole('button', { name: 'Remove XX59' }));
+    // The removed row took the focused button with it
+    expect(screen.getByRole('button', { name: 'Undo' })).toHaveFocus();
+
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(screen.getByRole('heading', { name: 'Cart (2)' })).toHaveFocus();
+  });
+
+  it('lets the undo note expire, moving focus off it if it had focus', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    useCartStore.getState().add(xx59, 1);
+    renderCart();
+
+    await user.click(within(row('XX59')).getByRole('button', { name: 'Remove XX59' }));
+    act(() => {
+      vi.advanceTimersByTime(UNDO_MS);
+    });
+
+    expect(screen.queryByRole('button', { name: 'Undo' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Cart (0)' })).toHaveFocus();
+    vi.useRealTimers();
   });
 });
