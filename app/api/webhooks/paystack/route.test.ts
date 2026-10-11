@@ -1,11 +1,13 @@
 // @vitest-environment node
 import { createHmac } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { revalidatePath } from 'next/cache';
 import { fulfillCardPayment, recordRefundOutcome } from '@/lib/orders';
 import { POST } from './route';
 
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('@/lib/orders', () => ({
-  fulfillCardPayment: vi.fn(async () => ({ outcome: 'placed' })),
+  fulfillCardPayment: vi.fn(async () => ({ outcome: 'placed', changedProducts: [] })),
   recordRefundOutcome: vi.fn(async () => ({ count: 1 })),
 }));
 
@@ -30,6 +32,7 @@ beforeEach(() => {
   vi.stubEnv('PAYSTACK_SECRET_KEY', KEY);
   vi.mocked(fulfillCardPayment).mockClear();
   vi.mocked(recordRefundOutcome).mockClear();
+  vi.mocked(revalidatePath).mockClear();
 });
 
 afterEach(() => {
@@ -42,6 +45,51 @@ describe('Paystack webhook', () => {
 
     expect(response.status).toBe(200);
     expect(fulfillCardPayment).toHaveBeenCalledWith(REFERENCE);
+  });
+
+  it('revalidates the pages of products whose stock the order took', async () => {
+    vi.mocked(fulfillCardPayment).mockResolvedValueOnce({
+      outcome: 'placed',
+      order: {} as never,
+      changedProducts: [
+        { slug: 'xx59-headphones', category: 'headphones' },
+        { slug: 'xx99-mark-two-headphones', category: 'headphones' },
+      ],
+    });
+
+    await deliver(chargeSuccess);
+
+    expect(
+      vi
+        .mocked(revalidatePath)
+        .mock.calls.map(([path]) => path)
+        .sort()
+    ).toEqual([
+      '/category/headphones',
+      '/product/xx59-headphones',
+      '/product/xx99-mark-two-headphones',
+    ]);
+  });
+
+  it('revalidates nothing when an earlier delivery already placed the order', async () => {
+    await deliver(chargeSuccess);
+
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it('still acknowledges the event when revalidation fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(revalidatePath).mockImplementationOnce(() => {
+      throw new Error('cache unavailable');
+    });
+    vi.mocked(fulfillCardPayment).mockResolvedValueOnce({
+      outcome: 'placed',
+      order: {} as never,
+      changedProducts: [{ slug: 'zx7-speaker', category: 'speakers' }],
+    });
+
+    expect((await deliver(chargeSuccess)).status).toBe(200);
+    expect(revalidatePath).toHaveBeenCalledWith('/category/speakers');
   });
 
   it.each([

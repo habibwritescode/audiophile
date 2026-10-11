@@ -7,6 +7,7 @@ import {
   placeCashOrder as placeCashOrderLogic,
   startCardPayment as startCardPaymentLogic,
 } from '@/lib/payments';
+import { revalidateProductPages } from '@/lib/product-pages';
 import { PAYMENT_ATTEMPTS, takeRateLimit } from '@/lib/rate-limit';
 
 type CheckoutRequest = { lines: unknown; customer: unknown; displayedTotalCents: unknown };
@@ -40,8 +41,20 @@ export const startCardPayment = async (input: CheckoutRequest) =>
     ? startCardPaymentLogic(input)
     : ({ status: 'rate-limited' } as const);
 
-export const placeCashOrder = async (input: CheckoutRequest) =>
-  (await withinPaymentLimit()) ? placeCashOrderLogic(input) : ({ status: 'rate-limited' } as const);
+export const placeCashOrder = async (input: CheckoutRequest) => {
+  if (!(await withinPaymentLimit())) return { status: 'rate-limited' } as const;
+  const result = await placeCashOrderLogic(input);
+  if (result.status !== 'placed') return result;
+  const { changedProducts, ...placed } = result;
+  revalidateProductPages(changedProducts);
+  return placed;
+};
 
 // Not limited: it creates nothing, and shoppers must always be able to confirm a payment
-export const confirmCardPayment = async (reference: unknown) => confirmCardPaymentLogic(reference);
+export const confirmCardPayment = async (reference: unknown) => {
+  const result = await confirmCardPaymentLogic(reference);
+  if (result.outcome !== 'placed') return result;
+  const { changedProducts, ...placed } = result;
+  revalidateProductPages(changedProducts);
+  return placed;
+};

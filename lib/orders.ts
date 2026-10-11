@@ -22,12 +22,21 @@ export type OrderSummary = {
   chargedKobo: number | null;
 };
 
+/** A product whose stock an order changed: its page and category page show stock */
+export type ChangedProduct = { slug: string; category: string };
+
 export const formatOrderNumber = (number: number) => `AUD-${String(number).padStart(6, '0')}`;
 
 const orderWithItems = {
-  items: { orderBy: { id: 'asc' }, include: { product: { select: { slug: true } } } },
+  items: {
+    orderBy: { id: 'asc' },
+    include: { product: { select: { slug: true, category: true } } },
+  },
 } satisfies Prisma.OrderInclude;
 type OrderRow = Prisma.OrderGetPayload<{ include: typeof orderWithItems }>;
+
+const productsOf = (order: OrderRow): ChangedProduct[] =>
+  order.items.map(({ product }) => ({ slug: product.slug, category: product.category }));
 
 const toSummary = (order: OrderRow): OrderSummary => ({
   id: order.id,
@@ -166,8 +175,11 @@ export const createPendingCardOrder = async ({
   });
 
 export type FulfilResult =
-  /** The order is placed (now, or by an earlier call) */
-  | { outcome: 'placed'; order: OrderSummary }
+  /**
+   * The order is placed. `changedProducts` lists what this call took stock from; it's empty when
+   * an earlier call placed the order.
+   */
+  | { outcome: 'placed'; order: OrderSummary; changedProducts: ChangedProduct[] }
   /**
    * Charged but couldn't be fulfilled. `refundRequested` is false while Paystack hasn't accepted
    * the refund request yet: callers that can retry (the webhook) should treat that as a failure.
@@ -178,8 +190,14 @@ export type FulfilResult =
   /** No order for this reference (e.g. a payment made against another environment) */
   | { outcome: 'unknown' };
 
-const resultFor = (order: OrderRow): FulfilResult => {
-  if (order.status === OrderStatus.PLACED) return { outcome: 'placed', order: toSummary(order) };
+const resultFor = (order: OrderRow, placedNow = false): FulfilResult => {
+  if (order.status === OrderStatus.PLACED) {
+    return {
+      outcome: 'placed',
+      order: toSummary(order),
+      changedProducts: placedNow ? productsOf(order) : [],
+    };
+  }
   if (order.status === OrderStatus.PENDING_PAYMENT) return { outcome: 'not-paid' };
   return {
     outcome: 'refunding',
@@ -272,26 +290,28 @@ export const fulfillCardPayment = async (
     return refundPendingOrder(order, 'charged amount or currency did not match the order', client);
   }
 
+  let placedNow = false;
   try {
-    await db.$transaction(async (tx) => {
+    placedNow = await db.$transaction(async (tx) => {
       // Claim the order first: a concurrent fulfilment (browser + webhook) finds nothing to change
       const claimed = await tx.order.updateMany({
         where: { id: order.id, status: OrderStatus.PENDING_PAYMENT },
         data: { status: OrderStatus.PLACED, placedAt: new Date() },
       });
-      if (claimed.count === 0) return;
+      if (claimed.count === 0) return false;
       await takeStock(tx, order.items);
+      return true;
     });
   } catch (error) {
     if (!(error instanceof OutOfStockError)) throw error;
     return refundPendingOrder(order, 'out of stock after payment', client);
   }
 
-  return resultFor((await findByReference(reference))!);
+  return resultFor((await findByReference(reference))!, placedNow);
 };
 
 export type CashOrderResult =
-  | { status: 'placed'; order: OrderSummary }
+  | { status: 'placed'; order: OrderSummary; changedProducts: ChangedProduct[] }
   /** Stock or prices changed: nothing was created; apply these facts like any cart check */
   | { status: 'cart-changed'; check: CartCheckLine[] };
 
@@ -324,7 +344,7 @@ export const placeCashOrder = async ({
         include: orderWithItems,
       });
     });
-    return { status: 'placed', order: toSummary(created) };
+    return { status: 'placed', order: toSummary(created), changedProducts: productsOf(created) };
   } catch (error) {
     if (!(error instanceof OutOfStockError)) throw error;
     // Sold out between the quote and the transaction: report the new facts

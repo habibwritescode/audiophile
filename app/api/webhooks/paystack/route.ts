@@ -1,6 +1,7 @@
 import { fulfillCardPayment, recordRefundOutcome } from '@/lib/orders';
 import { isPaymentReference } from '@/lib/payments';
 import { PaystackConfigError, isValidWebhookSignature } from '@/lib/paystack';
+import { revalidateProductPages } from '@/lib/product-pages';
 
 // Paystack posts events here (Test Webhook URL in the Paystack dashboard). It retries until it gets
 // a 200, so internal failures answer 500 on purpose, and fulfilment is safe to repeat.
@@ -29,6 +30,7 @@ export const POST = async (request: Request) => {
     if (event.event === 'charge.success' && isPaymentReference(event.data?.reference)) {
       // The signature proves the sender; fulfilment still re-verifies the payment with Paystack
       const result = await fulfillCardPayment(event.data.reference);
+      if (result.outcome === 'placed') revalidateProductPages(result.changedProducts);
       if (result.outcome === 'refunding' && !result.refundRequested) {
         // Answering 500 makes Paystack redeliver, and each delivery asks for the refund again
         return new Response('Refund not requested yet', { status: 500 });

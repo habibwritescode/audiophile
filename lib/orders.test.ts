@@ -131,9 +131,19 @@ describe.skipIf(!hasDatabase)('orders', () => {
       expect(results.map((result) => result.outcome)).toEqual(['placed', 'placed', 'placed']);
       expect(await stock()).toBe(SEEDED_STOCK - 1);
       expect(await db.order.count({ where: { paymentReference: reference } })).toBe(1);
+      // Only the call that took the stock reports it, so pages are revalidated once
+      const reported = results.flatMap((result) =>
+        result.outcome === 'placed' && result.changedProducts.length > 0
+          ? [result.changedProducts]
+          : []
+      );
+      expect(reported).toEqual([[{ slug: SLUG, category: 'headphones' }]]);
 
       // ...and again later
-      expect((await fulfillCardPayment(reference, client)).outcome).toBe('placed');
+      expect(await fulfillCardPayment(reference, client)).toMatchObject({
+        outcome: 'placed',
+        changedProducts: [],
+      });
       expect(await stock()).toBe(SEEDED_STOCK - 1);
     });
 
@@ -325,6 +335,7 @@ describe.skipIf(!hasDatabase)('orders', () => {
         paymentMethod: 'CASH',
         chargedKobo: null,
       });
+      expect(result.changedProducts).toEqual([{ slug: SLUG, category: 'headphones' }]);
       expect(await stock()).toBe(SEEDED_STOCK - 3);
     });
 
