@@ -1,9 +1,15 @@
 import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
+import dynamic from 'next/dynamic';
 import '@/ui/globals.css';
 import Header from '@/ui/header';
 import Footer from '@/ui/footer';
 import CartHydration from '@/ui/cart/cart-hydration';
+
+// Dev-only worst-case data toggle. Imported only in a branch that's dead in production builds, so
+// it isn't bundled at all (a static import would ship it, gated or not).
+const DevDataToggle =
+  process.env.NODE_ENV === 'development' ? dynamic(() => import('@/ui/dev/data-toggle')) : null;
 
 const manrope = Manrope({
   variable: '--font-manrope',
@@ -38,6 +44,7 @@ export default function RootLayout({
         <Header />
         <main className="flex-grow">{children}</main>
         <Footer />
+        {DevDataToggle && <DevDataToggle />}
       </body>
     </html>
   );
