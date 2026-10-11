@@ -122,13 +122,15 @@ const Cart = ({ isOpen, onClose }: Props) => {
   // so the longest product name (XX99 MK II) still fits beside the stepper on one line.
   // The card never outgrows the visible screen (dvh follows the mobile browser bar): the title and
   // the total stay put, and the notes and items scroll inside the card, not the page behind it.
+  // Only on tall screens: on a phone on its side the fixed parts alone fill the cap, so there the
+  // card takes its natural height and the modal scrolls instead.
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       origin="top-right"
       containerClassName="flex justify-center p-6 max-xs:p-4 md:justify-end md:px-10 xl:px-0"
-      panelClassName="flex max-h-[calc(100dvh-var(--header-height)-3rem)] max-w-94 flex-grow flex-col rounded-lg bg-white px-7 py-8 max-xs:max-h-[calc(100dvh-var(--header-height)-2rem)] max-xs:px-5 md:px-8"
+      panelClassName="flex max-w-94 flex-grow flex-col rounded-lg bg-white px-7 py-8 max-xs:px-5 md:px-8 tall:max-h-[calc(100dvh-var(--header-height)-3rem)] max-xs:tall:max-h-[calc(100dvh-var(--header-height)-2rem)]"
     >
       <div className="mb-8 flex shrink-0 items-center justify-between">
         <h3 ref={heading} tabIndex={-1} className="text-18 text-black uppercase outline-none">
@@ -167,7 +169,7 @@ const Cart = ({ isOpen, onClose }: Props) => {
       {/* Room at the sides for the steppers' enlarged tap targets, which the scroll box would clip */}
       <div
         ref={scroller}
-        className="-mx-3 min-h-0 flex-1 overflow-y-auto overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,#000_var(--fade-top),#000_calc(100%-var(--fade-bottom)),transparent)] px-3"
+        className="-mx-3 overscroll-contain [mask-image:linear-gradient(to_bottom,transparent,#000_var(--fade-top),#000_calc(100%-var(--fade-bottom)),transparent)] px-3 tall:min-h-0 tall:flex-1 tall:overflow-y-auto"
         style={
           {
             '--fade-top': fades.top ? FADE : '0px',

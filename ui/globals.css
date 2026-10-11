@@ -13,6 +13,9 @@
   }
 }
 
+/* Screens tall enough for the cart's capped, internally scrolling layout (not a phone on its side) */
+@custom-variant tall (@media (min-height: 32rem));
+
 @layer base {
   /* Taps fire at once: no wait to see if a second tap is a double-tap zoom (the quantity
      stepper is tapped in quick succession) */
@@ -51,6 +54,8 @@
   --color-gray-50: #fafafa;
   --color-gray-200: #f2f2f2;
   --color-red: #cd2c2c;
+  /* The home hero photo's edge colour, sampled: the hero's background matches it seamlessly */
+  --color-hero: #191919;
 
   /* Replaces Tailwind's weak default ease-out (0, 0, 0.2, 1): starts fast, so UI responds the
      moment it's pressed. Every ease-out class and var(--ease-out) uses it. */

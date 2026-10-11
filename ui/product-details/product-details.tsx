@@ -52,7 +52,7 @@ const ProductDetails = ({ product }: { product: Product }) => {
         <section className="my-22 flex flex-col gap-22 md:my-30 md:gap-30 xl:my-40 xl:flex-row">
           <div>
             <h2 className="mb-6 text-24 text-black uppercase md:mb-8 md:text-32">Features</h2>
-            <p className="max-w-172 text-15 whitespace-pre-line text-black/60 xl:max-w-158">
+            <p className="max-w-136 text-15 whitespace-pre-line text-black/60 xl:max-w-158">
               {product.features}
             </p>
           </div>

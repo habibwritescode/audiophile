@@ -300,7 +300,7 @@ const Checkout = ({ cardAvailable }: Props) => {
               </div>
             </section>
           ) : (
-            <section className="mt-6 grid gap-8 xl:mt-9.5 xl:grid-cols-[65%_1fr] xl:gap-7.5">
+            <section className="mt-6 grid gap-8 lg:mt-9.5 lg:grid-cols-[65%_1fr] lg:gap-7.5">
               <CheckoutForm
                 onSubmit={handleSubmit}
                 cardAvailable={cardAvailable}

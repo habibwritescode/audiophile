@@ -86,7 +86,7 @@ const Header = () => {
 
   // The menu is mobile/tablet only; close it if the window grows to desktop width
   useEffect(() => {
-    const desktop = window.matchMedia('(min-width: 80rem)');
+    const desktop = window.matchMedia('(min-width: 64rem)');
     const closeOnDesktop = () => desktop.matches && setIsMenuOpen(false);
     desktop.addEventListener('change', closeOnDesktop);
     return () => desktop.removeEventListener('change', closeOnDesktop);
@@ -102,7 +102,7 @@ const Header = () => {
             aria-expanded={isMenuOpen}
             data-modal-toggle="menu"
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            className="-m-2 p-2 transition-opacity active:opacity-60 xl:hidden"
+            className="-m-2 p-2 transition-opacity active:opacity-60 lg:hidden"
           >
             <MenuIcon open={isMenuOpen} />
           </button>
@@ -115,7 +115,9 @@ const Header = () => {
             />
           </Link>
 
-          <div className="ml-50 hidden xl:block">
+          {/* From 1024px the links fit beside the logo: centred between it and the cart, then at
+              the design's offset from 1280px */}
+          <div className="hidden lg:mx-auto lg:block xl:mr-0 xl:ml-50">
             <NavLinks />
           </div>
 

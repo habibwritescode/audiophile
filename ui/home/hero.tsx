@@ -7,18 +7,22 @@ import desktopHero from '../../public/assets/home/desktop/image-hero.jpg';
 
 const Hero = () => {
   return (
-    // Dark like the photo (almost black): until it paints, the overlay below would otherwise darken
-    // the white page into a grey block
-    <section className="relative min-h-[calc(100svh-var(--header-height))] bg-neutral-dark">
-      <ArtDirectedImage
-        mobile={mobileHero}
-        tablet={tabletHero}
-        desktop={desktopHero}
-        sizes="100vw"
-        fill
-        priority
-        className="object-cover"
-      />
+    // The photo's own edge colour: until it paints, the overlay below would otherwise darken the white
+    // page into a grey block, and on wide screens the photo sits on it without a seam.
+    // From 1280px the hero stops at the desktop photo's size (1440×729), so it's never stretched
+    // past its pixels (it was 1.84× on a 2560×1440 screen); the photo is centred on the background.
+    <section className="relative min-h-[calc(100svh-var(--header-height))] bg-hero xl:h-[min(calc(100svh-var(--header-height)),729px)] xl:min-h-0">
+      <div className="absolute inset-y-0 left-1/2 w-full -translate-x-1/2 xl:max-w-[1440px]">
+        <ArtDirectedImage
+          mobile={mobileHero}
+          tablet={tabletHero}
+          desktop={desktopHero}
+          sizes="(min-width: 90rem) 1440px, 100vw"
+          fill
+          priority
+          className="object-cover"
+        />
+      </div>
 
       <div className="absolute inset-0 bg-black/30" />
 
