@@ -5,6 +5,7 @@ import NavLinks from './nav-links';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Cart from './cart/cart';
+import MenuIcon from './menu-icon';
 import Modal from './modal';
 import ShopCategories from './shop-categories/shop-categories';
 import { useEffect, useRef, useState } from 'react';
@@ -103,7 +104,7 @@ const Header = () => {
             onClick={() => setIsMenuOpen((prev) => !prev)}
             className="-m-2 p-2 transition-opacity active:opacity-60 xl:hidden"
           >
-            <Image src="/assets/shared/tablet/icon-hamburger.svg" width={16} height={15} alt="" />
+            <MenuIcon open={isMenuOpen} />
           </button>
           <Link href="/" className="transition-opacity active:opacity-60">
             <Image
