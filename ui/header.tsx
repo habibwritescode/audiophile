@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import NavLinks from './nav-links';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import Cart from './cart/cart';
 import Modal from './modal';
 import ShopCategories from './shop-categories/shop-categories';
@@ -59,6 +60,25 @@ const Header = () => {
   const badge = useBadgeBump(storedCount);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // The header lives in the root layout and outlives page changes: close the modals on navigation
+  // (a header link, Back), or the cart would stay open over the new page
+  const pathname = usePathname();
+  const [modalsPathname, setModalsPathname] = useState(pathname);
+  if (pathname !== modalsPathname) {
+    setModalsPathname(pathname);
+    setIsCartOpen(false);
+    setIsMenuOpen(false);
+  }
+
+  // Headless UI counts the header as part of the dialog's tree, so a click on it isn't "outside"
+  // and doesn't close the cart or menu. Do it here; each toggle button handles its own modal.
+  const closeModalsOnHeaderClick = (event: React.MouseEvent) => {
+    const toggle = (event.target as Element).closest('[data-modal-toggle]');
+    const toggles = toggle?.getAttribute('data-modal-toggle');
+    if (toggles !== 'cart') setIsCartOpen(false);
+    if (toggles !== 'menu') setIsMenuOpen(false);
+  };
+
   // The menu is mobile/tablet only; close it if the window grows to desktop width
   useEffect(() => {
     const desktop = window.matchMedia('(min-width: 80rem)');
@@ -69,12 +89,13 @@ const Header = () => {
 
   return (
     <>
-      <header className="bg-neutral-dark md:px-10">
+      <header className="bg-neutral-dark md:px-10" onClick={closeModalsOnHeaderClick}>
         <div className="mx-auto flex max-w-6xl items-center justify-between border-b border-b-white/20 px-6 py-8 md:justify-start md:gap-17 md:px-0 xl:gap-0 xl:py-9">
           <button
             type="button"
             aria-label="Open menu"
             aria-expanded={isMenuOpen}
+            data-modal-toggle="menu"
             onClick={() => setIsMenuOpen((prev) => !prev)}
             className="-m-2 p-2 xl:hidden"
           >
@@ -100,6 +121,7 @@ const Header = () => {
                 ? `Open cart, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`
                 : 'Open cart'
             }
+            data-modal-toggle="cart"
             onClick={() => setIsCartOpen((prev) => !prev)}
             className="relative -m-2 p-2 md:ml-auto"
           >
@@ -116,10 +138,12 @@ const Header = () => {
           </button>
         </div>
       </header>
-      <Modal isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
-        <div className="rounded-b-lg bg-white px-6 pt-8 pb-9 md:px-10 md:pt-14 md:pb-16">
-          <ShopCategories className="my-0 pt-0" onItemClick={() => setIsMenuOpen(false)} />
-        </div>
+      <Modal
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        panelClassName="rounded-b-lg bg-white px-6 pt-8 pb-9 md:px-10 md:pt-14 md:pb-16"
+      >
+        <ShopCategories className="my-0 pt-0" onItemClick={() => setIsMenuOpen(false)} />
       </Modal>
       <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>

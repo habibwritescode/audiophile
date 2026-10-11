@@ -126,4 +126,19 @@ describe('Cart', () => {
     expect(useCartStore.getState().lines[0].quantity).toBe(2);
     expect(within(row('XX59')).getByRole('button', { name: 'Increase quantity' })).toBeEnabled();
   });
+
+  it('closes on a click just outside the cart card, and not on one inside it', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    useCartStore.getState().add(xx59, 1);
+    render(<Cart isOpen onClose={onClose} />);
+    const card = screen.getByRole('heading', { name: 'Cart (1)' }).closest('.bg-white')!;
+
+    await user.click(card);
+    expect(onClose).not.toHaveBeenCalled();
+
+    // On screen, the dimmed space beside the card
+    await user.click(card.parentElement!);
+    expect(onClose).toHaveBeenCalled();
+  });
 });
