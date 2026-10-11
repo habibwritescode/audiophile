@@ -38,7 +38,7 @@ const parseCustomer = (input: unknown): CheckoutValues => {
   const values = Object.fromEntries(
     (Object.keys(initialCheckoutValues) as (keyof CheckoutValues)[]).map((field) => {
       const value = raw[field];
-      return [field, typeof value === 'string' && value.length <= 200 ? value.trim() : ''];
+      return [field, typeof value === 'string' ? value.trim() : ''];
     })
   ) as CheckoutValues;
   if (Object.keys(validateCheckout(values)).length > 0) {

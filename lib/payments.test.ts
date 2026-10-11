@@ -116,6 +116,20 @@ describe.skipIf(!hasDatabase)('startCardPayment', () => {
     expect(params.metadata).toEqual({ orderId: order.id, amountKobo, cart: zx9Order.lines });
   });
 
+  it('accepts a long address the form accepts', async () => {
+    // A real Lagos address with landmark directions: 215 characters
+    const address =
+      'Flat 4B, Block 12, Sunshine Gardens Estate, Off Admiralty Way, Opposite Mega Plaza, Beside First Bank, Lekki Phase 1, Eti-Osa Local Government Area, Lagos State. Landmark: big yellow gate after the second roundabout';
+
+    const result = await startCardPayment(
+      { ...zx9Order, customer: { ...customer, address }, displayedTotalCents: zx9Total },
+      fakeClient(),
+      TAGGED
+    );
+
+    expect(result.status).toBe('ready');
+  });
+
   it('creates nothing when the cart asks for more than is in stock', async () => {
     const client = fakeClient();
 

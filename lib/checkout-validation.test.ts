@@ -42,6 +42,20 @@ describe('validateCheckout', () => {
     expect(errorFor(field, accepted)).toBeUndefined();
     expect(errorFor(field, rejected)).toBe('Wrong format');
   });
+
+  // Addresses with landmark directions run long; the other fields don't
+  it.each<[CheckoutField, number]>([
+    ['address', 300],
+    ['name', 200],
+    ['city', 200],
+  ])('accepts %s up to %i characters, and says so beyond', (field, max) => {
+    expect(errorFor(field, 'x'.repeat(max))).toBeUndefined();
+    expect(errorFor(field, 'x'.repeat(max + 1))).toBe(`Max ${max} characters`);
+  });
+
+  it('counts length after trimming', () => {
+    expect(errorFor('name', ` ${'x'.repeat(200)} `)).toBeUndefined();
+  });
 });
 
 describe('isValidEmail', () => {
