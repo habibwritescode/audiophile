@@ -20,9 +20,13 @@ const CartItem = ({ name, priceCents, qty, maxQty, image, onQtyChange }: Props) 
         <Image src={image} alt="" fill sizes="64px" className="object-cover" />
       </div>
 
-      <div className="flex flex-grow items-center gap-2">
-        <div>
-          <p className="text-15 font-bold whitespace-nowrap text-black">{name}</p>
+      <div className="flex min-w-0 flex-grow items-center gap-2">
+        {/* Until the cart check corrects it, a stored line can carry a long old name. contain:
+            inline-size stops that one-line name from setting the row's minimum width (which would
+            widen the cart card, the summary and the confirmation past the screen); it fills the
+            space left and the name is cut with an ellipsis instead */}
+        <div className="min-w-0 flex-1 [contain:inline-size]">
+          <p className="truncate text-15 font-bold text-black">{name}</p>
           <p className="text-14 font-bold tracking-normal text-black/50">
             {formatAmount(priceCents)}
           </p>
@@ -33,10 +37,10 @@ const CartItem = ({ name, priceCents, qty, maxQty, image, onQtyChange }: Props) 
             handleChange={onQtyChange}
             min={0}
             max={maxQty}
-            className="ml-auto h-8 w-24 justify-between gap-0 px-3"
+            className="ml-auto h-8 w-24 shrink-0 justify-between gap-0 px-3 max-xs:w-20"
           />
         ) : (
-          <p className="ml-auto text-15 font-bold text-black/50">x{qty}</p>
+          <p className="ml-auto shrink-0 text-15 font-bold text-black/50">x{qty}</p>
         )}
       </div>
     </li>

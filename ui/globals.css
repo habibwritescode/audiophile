@@ -54,6 +54,11 @@
      moment it's pressed. Every ease-out class and var(--ease-out) uses it. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
+  /* Narrower than the design's smallest frame (375px): max-xs: lets the cart give a little room */
+  --breakpoint-xs: 23.4375rem;
+  /* Strong ease-in-out for content moving on screen (e.g. pushed down by something growing) */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
   --text-56: 3.5rem;
   --text-56--line-height: 3.625rem;
   --text-56--letter-spacing: 0.05em;
