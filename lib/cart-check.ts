@@ -15,6 +15,10 @@ export type CartLine = {
   quantity: number;
 };
 
+/** The part of the cart the server check needs; it never receives client prices */
+export const toCartRequest = (lines: CartLine[]) =>
+  lines.map(({ slug, quantity }) => ({ slug, quantity }));
+
 /** What the server knows about one product in the cart (see validateCart) */
 export type CartCheckLine =
   | { slug: string; exists: false }

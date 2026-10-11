@@ -7,6 +7,7 @@ import {
   startCardPayment,
   validateCart,
 } from '@/app/checkout/actions';
+import { toCartRequest } from '@/lib/cart-check';
 import { CartLine, useCartHydrated, useCartStore } from '@/lib/cart-store';
 import { CheckoutSubmission, PaymentMethod } from '@/lib/checkout-validation';
 import { formatNaira, orderTotals, toChargeKobo } from '@/lib/pricing';
@@ -41,8 +42,6 @@ type Busy = 'checking' | 'placing' | 'paying' | 'confirming' | null;
 type ConfirmedOrder = { number: string; lines: CartLine[]; chargedKobo: number | null };
 type PendingPayment = { reference: string };
 
-const cartRequest = (lines: CartLine[]) => lines.map(({ slug, quantity }) => ({ slug, quantity }));
-
 /**
  * Checks the cart against the database and applies any corrections. If the shopper edits the
  * cart while the check is running, the answer describes a cart that no longer exists, so it is
@@ -51,7 +50,7 @@ const cartRequest = (lines: CartLine[]) => lines.map(({ slug, quantity }) => ({ 
 const checkAndCorrectCart = async (): Promise<CheckResult> => {
   for (let attempt = 0; attempt < MAX_CHECK_ATTEMPTS; attempt++) {
     const checked = useCartStore.getState().lines;
-    const facts = await validateCart(cartRequest(checked));
+    const facts = await validateCart(toCartRequest(checked));
     if (useCartStore.getState().lines !== checked) continue;
 
     const messages = useCartStore.getState().applyServerCheck(facts);
@@ -147,7 +146,7 @@ const Checkout = ({ cardAvailable }: Props) => {
     setMessages([]);
     try {
       const result = await placeCashOrder({
-        lines: cartRequest(ordered),
+        lines: toCartRequest(ordered),
         customer,
         displayedTotalCents: orderTotals(ordered).grandTotal,
       });
@@ -202,7 +201,7 @@ const Checkout = ({ cardAvailable }: Props) => {
     setMessages([]);
     try {
       const started = await startCardPayment({
-        lines: cartRequest(ordered),
+        lines: toCartRequest(ordered),
         customer,
         displayedTotalCents: orderTotals(ordered).grandTotal,
       });

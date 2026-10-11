@@ -6,12 +6,14 @@ type Props = {
   name: string;
   priceCents: number;
   qty: number;
+  /** In stock, when known: "+" stops there */
+  maxQty?: number;
   image: string;
   // When provided, renders a quantity selector instead of the "xN" label
   onQtyChange?: (qty: number) => void;
 };
 
-const CartItem = ({ name, priceCents, qty, image, onQtyChange }: Props) => {
+const CartItem = ({ name, priceCents, qty, maxQty, image, onQtyChange }: Props) => {
   return (
     <li className="flex items-center gap-4">
       <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
@@ -30,6 +32,7 @@ const CartItem = ({ name, priceCents, qty, image, onQtyChange }: Props) => {
             value={qty}
             handleChange={onQtyChange}
             min={0}
+            max={maxQty}
             className="ml-auto h-8 w-24 justify-between gap-0 px-3"
           />
         ) : (
