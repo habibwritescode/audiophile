@@ -11,11 +11,14 @@ const known: Record<string, Set<string>> = {
   category: new Set(Object.values(Category)),
 };
 
+export const NOT_FOUND_PATH = '/category/not-found';
+
 export const middleware = (request: NextRequest) => {
   const [, section, name] = request.nextUrl.pathname.split('/');
   if (known[section]?.has(name)) return NextResponse.next();
-  // An unmatched path: Next serves its prerendered 404 page
-  return NextResponse.rewrite(new URL('/404', request.url));
+  // One fixed path the category route answers with a 404 (no database read, one cache entry).
+  // Not '/404': Vercel serves that page with status 200 when it's reached through a rewrite.
+  return NextResponse.rewrite(new URL(NOT_FOUND_PATH, request.url));
 };
 
 export const config = { matcher: ['/product/:slug', '/category/:name'] };

@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { NextRequest } from 'next/server';
 import { describe, expect, it } from 'vitest';
-import { middleware } from './middleware';
+import { NOT_FOUND_PATH, middleware } from './middleware';
 
 const visit = (path: string) => middleware(new NextRequest(`http://localhost${path}`));
 
@@ -11,9 +11,11 @@ describe('middleware', () => {
   });
 
   it.each(['/product/nope', '/category/nope', '/category/zx9-speaker'])(
-    'sends %s to the 404 page before the route renders',
+    'sends %s to the not-found page before the route renders',
     (path) => {
-      expect(visit(path).headers.get('x-middleware-rewrite')).toBe('http://localhost/404');
+      expect(visit(path).headers.get('x-middleware-rewrite')).toBe(
+        `http://localhost${NOT_FOUND_PATH}`
+      );
     }
   );
 });
