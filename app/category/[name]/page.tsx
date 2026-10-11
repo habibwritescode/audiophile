@@ -6,9 +6,8 @@ import BringingYouTheBestGear from '@/ui/bringing-you-the-best';
 
 type Props = { params: Promise<{ name: string }> };
 
-// Every category is prerendered; the list is the schema's Category enum. Unknown paths 404
-// without rendering on demand.
-export const dynamicParams = false;
+// Every category is prerendered; the list is the schema's Category enum. No `dynamicParams =
+// false`, as on product pages: revalidation needs it off. middleware.ts turns unknown names away.
 
 export const generateStaticParams = () => categories.map((name) => ({ name }));
 
