@@ -150,9 +150,9 @@ Tests can't show some things, so I checked them by hand on a production build: s
 
 ## On AI-assisted development
 
-I built this with Claude Code.
+I started this a while back without AI assistance, I wanted to test whether my pixel perfect ui implementaion skills had not atrophied. I completed the UI and got busy with other stuff.
 
-I set the scope and the standard in a written build spec that asked for real persistence, real payments and a differentiator, written up as a case study. I switched to Paystack when Stripe wouldn't open a Nigerian account, and kept payments in test mode. I approved each module's spec and plan before any code existed, and decided which review findings got fixed. Where the tool proposed options, I chose among them.
+I recently checked again and wanted to complete it and thought to use Claude Code to help. I set the scope and the standard in a written build spec that asked for real persistence, real payments and a differentiator, written up as a case study. I switched to Paystack when Stripe wouldn't open a Nigerian account, and kept payments in test mode. I approved each module's spec and plan before any code existed, and decided which review findings got fixed. Where the tool proposed options, I chose among them.
 
 ## Credits
 
